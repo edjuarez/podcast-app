@@ -233,13 +233,17 @@ export async function getPodcastDetail(
     episodes,
   }
 
-  localStorage.setItem(
-    cacheKey,
-    JSON.stringify({
-      timestamp: Date.now(),
-      data: podcastDetail,
-    }),
-  )
+  try {
+    localStorage.setItem(
+      cacheKey,
+      JSON.stringify({
+        timestamp: Date.now(),
+        data: podcastDetail,
+      }),
+    )
+  } catch (error) {
+    console.warn('Could not cache podcast detail', error)
+  }
 
   return podcastDetail
 }
