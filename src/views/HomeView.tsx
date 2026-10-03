@@ -1,6 +1,6 @@
-import { PodcastCard } from '../components/PodcastCard/PodcastCard'
+import { PodcastCard } from '../components/PodcastCard'
 import { useTopPodcasts } from '../hooks/useTopPodcasts'
-import { PodcastFilter } from '../components/PodcastFilter/PodcastFilter'
+import { PodcastFilter } from '../components/PodcastFilter'
 import { useState } from 'react'
 
 export function HomeView() {
@@ -27,10 +27,6 @@ export function HomeView() {
 
   return (
     <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <h1 className="mb-8 text-3xl font-bold tracking-tight text-[#4897CE]">
-        Podcaster
-      </h1>
-
       <PodcastFilter
         value={filter}
         podcastCount={podcasts.length}

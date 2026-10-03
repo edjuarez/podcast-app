@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import type { Episode } from '../../types/episode'
+import type { Episode } from '../types/episode'
 
 interface EpisodeListProps {
   podcastId: string
@@ -27,23 +27,32 @@ export function EpisodeList({
   episodes,
 }: EpisodeListProps) {
   return (
-    <div className="divide-y divide-gray-200 rounded-lg border border-gray-200 bg-white">
+    <div className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+      <div className="grid grid-cols-[1fr_120px_100px] border-b border-gray-200 px-4 py-3 text-sm font-semibold ">
+        <span>Title</span>
+        <span>Date</span>
+        <span>Duration</span>
+      </div>
+
       {episodes.map((episode) => (
         <article
           key={episode.id}
-          className="p-4"
+          className="grid grid-cols-[1fr_120px_100px] items-center border-b border-gray-200 px-4 py-4 last:border-b-0"
         >
           <Link
             to={`/podcast/${podcastId}/episode/${episode.id}`}
-            className="font-semibold hover:underline"
+            className="font-semibold hover:underline text-[#2e79ad] w-[600px]"
           >
             {episode.title}
           </Link>
 
-          <div className="mt-2 flex gap-4 text-sm text-gray-500">
-            <span>{formatDate(episode.date)}</span>
-            <span>{formatDuration(episode.duration)}</span>
-          </div>
+          <span className="text-sm text-black-600">
+            {formatDate(episode.date)}
+          </span>
+
+          <span className="text-sm text-black-600">
+            {formatDuration(episode.duration)}
+          </span>
         </article>
       ))}
     </div>
