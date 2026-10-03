@@ -150,6 +150,22 @@ export async function getPodcastDetail(
     throw new Error('Podcast not found')
   }
 
+  const topPodcastsCache = localStorage.getItem(
+    TOP_PODCASTS_CACHE_KEY,
+  )
+
+  let description = ''
+
+  if (topPodcastsCache) {
+    const parsed: PodcastCache = JSON.parse(topPodcastsCache)
+
+    const cachedPodcast = parsed.data.find(
+      (podcast) => podcast.id === podcastId,
+    )
+
+    description = cachedPodcast?.description ?? ''
+  }
+
   const podcast: Podcast = {
     id: String(podcastResult.collectionId ?? podcastId),
     title: podcastResult.collectionName ?? '',
@@ -158,7 +174,7 @@ export async function getPodcastDetail(
       podcastResult.artworkUrl600 ??
       podcastResult.artworkUrl100 ??
       '',
-    description: podcastResult.description ?? '',
+    description,
   }
 
   const episodes: Episode[] = data.results
