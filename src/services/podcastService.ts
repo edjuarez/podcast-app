@@ -130,7 +130,7 @@ export async function getPodcastDetail(
     }
   }
 
-  const url = `${PODCAST_DETAIL_URL}?id=${podcastId}&media=podcast&entity=podcastEpisode&limit=20`
+  const url = `${PODCAST_DETAIL_URL}?id=${podcastId}&media=podcast&entity=podcastEpisode&limit=200`
 
   const response = await fetch(url)
 
