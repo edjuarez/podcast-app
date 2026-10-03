@@ -65,6 +65,7 @@ interface ItunesPodcastResult {
   releaseDate?: string
   trackTimeMillis?: number
   episodeUrl?: string
+  feedUrl?: string
 }
 
 interface ItunesPodcastDetailResponse {
@@ -113,6 +114,61 @@ export async function getTopPodcasts(): Promise<Podcast[]> {
   return podcasts
 }
 
+function readChannelText(channel: Element, localName: string): string {
+  for (const child of Array.from(channel.children)) {
+    if (child.localName === localName) {
+      return child.textContent?.trim() ?? ''
+    }
+  }
+
+  return ''
+}
+
+function stripHtml(html: string): string {
+  const { body } = new DOMParser().parseFromString(html, 'text/html')
+
+  return body.textContent?.trim() ?? ''
+}
+
+async function getFeedDescription(feedUrl: string): Promise<string> {
+  if (!feedUrl) {
+    return ''
+  }
+
+  try {
+    const response = await fetch(feedUrl)
+
+    if (!response.ok) {
+      return ''
+    }
+
+    const xml = new DOMParser().parseFromString(
+      await response.text(),
+      'application/xml',
+    )
+
+    if (xml.querySelector('parsererror')) {
+      return ''
+    }
+
+    const channel = xml.querySelector('channel')
+
+    if (!channel) {
+      return ''
+    }
+
+    const text =
+      readChannelText(channel, 'summary') ||
+      readChannelText(channel, 'description')
+
+    return text ? stripHtml(text) : ''
+  } catch (error) {
+    console.warn('Could not load podcast description from feed', error)
+
+    return ''
+  }
+}
+
 export async function getPodcastDetail(
   podcastId: string,
 ): Promise<PodcastDetail> {
@@ -150,22 +206,6 @@ export async function getPodcastDetail(
     throw new Error('Podcast not found')
   }
 
-  const topPodcastsCache = localStorage.getItem(
-    TOP_PODCASTS_CACHE_KEY,
-  )
-
-  let description = ''
-
-  if (topPodcastsCache) {
-    const parsed: PodcastCache = JSON.parse(topPodcastsCache)
-
-    const cachedPodcast = parsed.data.find(
-      (podcast) => podcast.id === podcastId,
-    )
-
-    description = cachedPodcast?.description ?? ''
-  }
-
   const podcast: Podcast = {
     id: String(podcastResult.collectionId ?? podcastId),
     title: podcastResult.collectionName ?? '',
@@ -174,7 +214,7 @@ export async function getPodcastDetail(
       podcastResult.artworkUrl600 ??
       podcastResult.artworkUrl100 ??
       '',
-    description,
+    description: await getFeedDescription(podcastResult.feedUrl ?? ''),
   }
 
   const episodes: Episode[] = data.results
