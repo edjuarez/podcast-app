@@ -25,8 +25,8 @@ export function PodcastCard({ podcast }: PodcastCardProps) {
             {podcast.title}
           </h2>
 
-          <p className="mt-2 text-center text-sm text-gray-500">
-            {podcast.author}
+          <p className="mt-2 text-center text-sm text-black-600">
+            Author: {podcast.author}
           </p>
         </div>
       </article>

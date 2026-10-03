@@ -1,4 +1,4 @@
-import { Link, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import { EpisodeList } from '../components/EpisodeList'
 import { usePodcastDetail } from '../hooks/usePodcastDetail'
 import { PodcastSidebar } from '../components/PodcastSidebar'
