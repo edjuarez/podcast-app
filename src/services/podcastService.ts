@@ -103,13 +103,17 @@ export async function getTopPodcasts(): Promise<Podcast[]> {
     description: podcast.summary?.label ?? '',
   }))
 
-  localStorage.setItem(
-    TOP_PODCASTS_CACHE_KEY,
-    JSON.stringify({
-      timestamp: Date.now(),
-      data: podcasts,
-    }),
-  )
+  try {
+    localStorage.setItem(
+      TOP_PODCASTS_CACHE_KEY,
+      JSON.stringify({
+        timestamp: Date.now(),
+        data: podcasts,
+      }),
+    )
+  } catch (error) {
+    console.warn('Could not cache podcasts', error)
+  }
 
   return podcasts
 }
