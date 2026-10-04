@@ -8,11 +8,7 @@ export function HomeView() {
   const [filter, setFilter] = useState('')
 
   if (loading) {
-    return (
-      <div className="flex min-h-[60vh] items-center justify-center">
-        <p className="text-2xl font-semibold text-gray-500">Loading...</p>
-      </div>
-    )
+    return null
   }
 
   if (error) {

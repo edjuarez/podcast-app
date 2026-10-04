@@ -1,9 +1,9 @@
-import { useNavigation } from 'react-router-dom'
+import { useIsViewLoading } from '../hooks/useViewLoading'
 
 export function NavigationIndicator() {
-  const navigation = useNavigation()
+  const isLoading = useIsViewLoading()
 
-  if (navigation.state === 'idle') {
+  if (!isLoading) {
     return null
   }
 

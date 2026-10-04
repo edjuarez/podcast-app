@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import type { PodcastDetail } from '../types/podcast'
 import { getPodcastDetail } from '../services/podcastService'
+import { useReportViewLoading } from './useViewLoading'
 
 export function usePodcastDetail(podcastId: string) {
   const [podcastDetail, setPodcastDetail] =
@@ -8,6 +9,8 @@ export function usePodcastDetail(podcastId: string) {
 
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<Error | null>(null)
+
+  useReportViewLoading(loading)
 
   useEffect(() => {
     async function loadPodcastDetail() {

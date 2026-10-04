@@ -19,7 +19,7 @@ React + TypeScript podcast SPA built as a frontend technical test. It consumes t
 * Episode detail view with the podcast sidebar and a native HTML5 audio player.
 * Episode descriptions are rendered as HTML instead of escaped markup.
 * 24 hour client-side cache for both the Top 100 feed and every podcast detail, backed by `localStorage`.
-* Visual loading indicator in the header while a route transition is pending.
+* Visual loading indicator in the header, visible from the start of a navigation until the target view has loaded all of its data.
 * Accessibility: landmarks, a real table for the episode list, an accessible name for the filter input and visible focus indicators.
 
 ## Routes
@@ -119,7 +119,7 @@ ARIA is kept minimal by relying on native HTML semantics wherever possible and u
 
 ### Testing
 
-Vitest unit tests were added for `src/services/podcastService.ts`, covering API response mapping, the 24 hour cache and error handling. Network calls are mocked with MSW so the suite runs without hitting the real API.
+Vitest covers the three views with integration tests driven by `renderApp` and MSW, plus unit tests for the 24 hour cache in `src/services/podcastService.ts`. Network calls are mocked with MSW so the suite runs without hitting the real API. The suite is intentionally small: one test per behaviour required by the technical test, with no duplicate coverage between views and components.
 
 ## Author
 

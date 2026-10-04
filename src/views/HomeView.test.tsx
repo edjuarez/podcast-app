@@ -1,9 +1,18 @@
-import { screen, within } from '@testing-library/react'
+import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { delay, http, HttpResponse } from 'msw'
 import { TOP_PODCASTS_ENDPOINT, server } from '../test/msw'
 import { topPodcastsResponse } from '../test/fixtures/podcasts'
 import { renderApp } from '../test/renderApp'
+
+function getHeaderIndicators() {
+  const headerRow = screen.getByRole('banner')
+    .firstElementChild as HTMLElement
+
+  return Array.from(headerRow.children).filter(
+    (child) => child.tagName !== 'A',
+  )
+}
 
 async function renderLoadedHome() {
   const result = renderApp('/')
@@ -32,7 +41,7 @@ describe('HomeView', () => {
     expect(firstCard).toHaveTextContent('Author: Author 1')
   })
 
-  it('shows a loading state while the podcasts are being fetched', async () => {
+  it('shows a loading indicator in the header until the podcasts are fetched', async () => {
     server.use(
       http.get(TOP_PODCASTS_ENDPOINT, async () => {
         await delay(50)
@@ -43,9 +52,13 @@ describe('HomeView', () => {
 
     renderApp('/')
 
-    expect(screen.getByText('Loading...')).toBeInTheDocument()
+    expect(getHeaderIndicators()).toHaveLength(1)
 
     await screen.findAllByRole('listitem')
+
+    await waitFor(() => {
+      expect(getHeaderIndicators()).toHaveLength(0)
+    })
   })
 
   it('filters the podcasts by title', async () => {

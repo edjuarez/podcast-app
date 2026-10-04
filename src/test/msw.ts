@@ -10,7 +10,7 @@ import {
   topPodcastsResponse,
 } from './fixtures/podcasts'
 
-export { TOP_PODCASTS_ENDPOINT }
+export { LOOKUP_ENDPOINT, TOP_PODCASTS_ENDPOINT }
 
 export const handlers = [
   http.get(TOP_PODCASTS_ENDPOINT, () =>

@@ -1,5 +1,6 @@
 import { Outlet, useLocation } from 'react-router-dom'
 import { Header } from './components/Header'
+import { LoadingProvider } from './components/LoadingProvider'
 
 function getRouteAnnouncement(pathname: string): string {
   if (pathname === '/') {
@@ -27,7 +28,7 @@ function App() {
   const { pathname } = useLocation()
 
   return (
-    <>
+    <LoadingProvider>
       <Header />
 
       <p role="status" className="sr-only">
@@ -35,7 +36,7 @@ function App() {
       </p>
 
       <Outlet />
-    </>
+    </LoadingProvider>
   )
 }
 

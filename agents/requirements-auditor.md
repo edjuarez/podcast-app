@@ -19,6 +19,17 @@ Your only responsibility is to determine whether the implementation satisfies th
 
 ## Requirements to audit
 
+### Aspectos permitidos
+
+• Se permite el uso de sintaxis ES2020 de Javascript.
+• Se permite el uso de herramientas tipo Webpack o Parcel.
+• La aplicación solo será revisada en la última versión de Google Chrome de
+escritorio, por lo que no es necesario tener en cuenta las particularidades de otros
+navegadores ni de tamaños de pantalla pequeños.
+• No será necesario realizar una gestión de errores de cara al usuario. Si se
+produce un error, solo se deberá mostrar en la consola del navegador su mensaje
+y su traza.
+
 ### Application
 - React SPA
 - Client-side navigation
