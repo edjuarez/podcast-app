@@ -31,20 +31,21 @@ export function HomeView() {
 
   return (
     <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      <h1 className="sr-only">Top Podcasts</h1>
+
       <PodcastFilter
         value={filter}
         podcastCount={filteredPodcasts.length}
         onChange={setFilter}
       />
 
-      <section className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      <ul className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {filteredPodcasts.map((podcast) => (
-          <PodcastCard
-            key={podcast.id}
-            podcast={podcast}
-          />
+          <li key={podcast.id}>
+            <PodcastCard podcast={podcast} />
+          </li>
         ))}
-      </section>
+      </ul>
     </main>
   )
 }

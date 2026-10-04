@@ -15,7 +15,7 @@ export function PodcastCard({ podcast }: PodcastCardProps) {
         <div className="absolute left-1/2 top-0 z-10 h-40 w-40 -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-full shadow-md">
           <img
             src={podcast.artworkUrl}
-            alt={podcast.title}
+            alt=""
             className="h-full w-full object-cover"
           />
         </div>
@@ -25,7 +25,7 @@ export function PodcastCard({ podcast }: PodcastCardProps) {
             {podcast.title}
           </h2>
 
-          <p className="mt-2 text-center text-sm text-black-600">
+          <p className="mt-2 text-center text-sm text-gray-600">
             Author: {podcast.author}
           </p>
         </div>

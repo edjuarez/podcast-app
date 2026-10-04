@@ -28,33 +28,52 @@ export function EpisodeList({
 }: EpisodeListProps) {
   return (
     <div className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
-      <div className="grid grid-cols-[1fr_120px_100px] border-b border-gray-200 px-4 py-3 text-sm font-semibold ">
-        <span>Title</span>
-        <span>Date</span>
-        <span>Duration</span>
-      </div>
+      <table className="w-full table-fixed border-collapse text-left">
+        <thead>
+          <tr className="border-b border-gray-200 text-sm font-semibold">
+            <th scope="col" className="px-4 py-3">
+              Title
+            </th>
 
-      {episodes.map((episode) => (
-        <article
-          key={episode.id}
-          className="grid grid-cols-[1fr_120px_100px] items-center border-b border-gray-200 px-4 py-4 last:border-b-0"
-        >
-          <Link
-            to={`/podcast/${podcastId}/episode/${episode.id}`}
-            className="font-semibold hover:underline text-[#2e79ad] w-[600px]"
-          >
-            {episode.title}
-          </Link>
+            <th scope="col" className="w-[120px] px-4 py-3">
+              Date
+            </th>
 
-          <span className="text-sm text-black-600">
-            {formatDate(episode.date)}
-          </span>
+            <th scope="col" className="w-[100px] px-4 py-3">
+              Duration
+            </th>
+          </tr>
+        </thead>
 
-          <span className="text-sm text-black-600">
-            {formatDuration(episode.duration)}
-          </span>
-        </article>
-      ))}
+        <tbody>
+          {episodes.map((episode) => (
+            <tr
+              key={episode.id}
+              className="border-b border-gray-200 last:border-b-0"
+            >
+              <th
+                scope="row"
+                className="px-4 py-4 text-left font-normal"
+              >
+                <Link
+                  to={`/podcast/${podcastId}/episode/${episode.id}`}
+                  className="font-semibold hover:underline text-[#2e79ad]"
+                >
+                  {episode.title}
+                </Link>
+              </th>
+
+              <td className="px-4 py-4 align-middle text-sm text-gray-600">
+                {formatDate(episode.date)}
+              </td>
+
+              <td className="px-4 py-4 align-middle text-sm text-gray-600">
+                {formatDuration(episode.duration)}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   )
 }

@@ -19,8 +19,9 @@ export function PodcastFilter({
         type="text"
         value={value}
         onChange={(event) => onChange(event.target.value)}
+        aria-label="Filter podcasts"
         placeholder="Filter podcasts..."
-        className="w-full max-w-xs rounded border border-gray-300 px-3 py-2 outline-none focus:border-[#4897CE]"
+        className="w-full max-w-xs rounded border border-gray-500 px-3 py-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#4897CE]"
       />
     </div>
   )
