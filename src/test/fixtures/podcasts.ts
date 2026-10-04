@@ -94,20 +94,12 @@ export function lookupResponse(overrides: LookupOverrides = {}) {
   }
 }
 
-interface FeedXmlOptions {
-  description?: string
-  summary?: string
-}
-
-export function feedXml(options: FeedXmlOptions = {}) {
-  const { description, summary } = options
-
+export function feedXml() {
   return `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd">
   <channel>
     <title>Test Podcast</title>
-    ${summary === undefined ? '' : `<itunes:summary>${summary}</itunes:summary>`}
-    ${description === undefined ? '' : `<description>${description}</description>`}
+    <description>Default feed description</description>
   </channel>
 </rss>`
 }

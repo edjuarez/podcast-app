@@ -10,7 +10,7 @@ import {
   topPodcastsResponse,
 } from './fixtures/podcasts'
 
-export { FEED_URL, LOOKUP_ENDPOINT, TOP_PODCASTS_ENDPOINT }
+export { TOP_PODCASTS_ENDPOINT }
 
 export const handlers = [
   http.get(TOP_PODCASTS_ENDPOINT, () =>
@@ -22,7 +22,7 @@ export const handlers = [
     return HttpResponse.json(lookupResponse({ podcast: { collectionId: Number(podcastId) } }))
   }),
   http.get(FEED_URL, () =>
-    HttpResponse.text(feedXml({ description: 'Default feed description' }), {
+    HttpResponse.text(feedXml(), {
       headers: { 'Content-Type': 'application/xml' },
     }),
   ),

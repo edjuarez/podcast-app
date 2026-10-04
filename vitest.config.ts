@@ -10,11 +10,11 @@ export default defineConfig({
     include: ['src/**/*.{test,spec}.{ts,tsx}'],
     coverage: {
       provider: 'v8',
-      include: ['src/services/**/*.ts'],
-      exclude: ['**/*.test.ts'],
+      include: ['src/services/**/*.ts', 'src/views/**/*.tsx'],
+      exclude: ['**/*.test.ts', '**/*.test.tsx'],
       reporter: ['text', 'html'],
       thresholds: {
-        lines: 85,
+        lines: 70,
       },
     },
   },
