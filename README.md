@@ -32,6 +32,21 @@ React + TypeScript podcast SPA built as a frontend technical test. It consumes t
 
 Navigation is client-side, uses clean URLs and never reloads the document.
 
+## Project Structure
+
+```text
+src/
+├── components/   reusable UI: cards, episode list, sidebar, header, filter
+├── views/        route level components
+├── hooks/        data loading hooks
+├── services/     API access and caching
+├── types/        shared domain types
+├── App.tsx       layout, header and route change announcements
+├── main.tsx      router setup
+└── index.css     global styles
+```
+
+
 ## Development
 
 Requires Node.js `^20.19.0` or `>=22.12.0`, which is the minimum enforced by Vite 8.
@@ -78,25 +93,21 @@ npm run preview
 
 ### Deployment
 
-The app uses history-based routing, so the host must serve `index.html` for unknown paths. Without that fallback, reloading a deep link such as `/podcast/123/episode/456` returns a 404.
+The application is deployed on Vercel:
 
-For static hosts, rewrite every request to `/index.html`. For Netlify, add a `public/_redirects` file with:
+https://podcast-app-edujuarezcba.vercel.app/
 
-```
-/* /index.html 200
-```
-
-If the app is not served from the root of the domain, set Vite's `base` option in `vite.config.ts` so asset URLs resolve correctly.
+Vercel handles the SPA routing and deployment configuration.
 
 ## Data Sources
 
-No API key is needed and no proxy is required: the Apple endpoints and the podcast RSS feeds both return `Access-Control-Allow-Origin: *`, so the browser calls them directly.
+The application uses the public Apple Podcasts API and podcast RSS feeds. No API key or backend proxy is required.
 
-* Top podcasts: `https://itunes.apple.com/us/rss/toppodcasts/limit=100/genre=1310/json`
-* Podcast and episodes: `https://itunes.apple.com/lookup?id={podcastId}&media=podcast&entity=podcastEpisode`
-* Podcast description: parsed from the podcast `feedUrl`, because the lookup response leaves that field empty.
+Top podcasts: Apple Podcasts RSS Feed
+Podcast and episode data: Apple Podcasts Lookup API
+Podcast descriptions: podcast RSS feed
 
-Responses are cached in `localStorage` for 24 hours. Clearing site data forces a refetch.
+API responses are cached in localStorage for 24 hours to reduce unnecessary requests. Clearing the site's local storage forces the application to fetch fresh data.
 
 ## Bonus and Extras
 
@@ -109,20 +120,6 @@ ARIA is kept minimal by relying on native HTML semantics wherever possible and u
 ### Testing
 
 Vitest unit tests were added for `src/services/podcastService.ts`, covering API response mapping, the 24 hour cache and error handling. Network calls are mocked with MSW so the suite runs without hitting the real API.
-
-## Project Structure
-
-```text
-src/
-├── components/   reusable UI: cards, episode list, sidebar, header, filter
-├── views/        route level components
-├── hooks/        data loading hooks
-├── services/     API access and caching
-├── types/        shared domain types
-├── App.tsx       layout, header and route change announcements
-├── main.tsx      router setup
-└── index.css     global styles
-```
 
 ## Author
 
