@@ -7,6 +7,8 @@ const TOP_PODCASTS_URL =
 const PODCAST_DETAIL_URL =
   'https://itunes.apple.com/lookup'
 
+const ALL_ORIGINS_RAW_ENDPOINT = 'https://api.allorigins.win/raw'
+
 const TOP_PODCASTS_CACHE_KEY = 'podcast-app:top-podcasts'
 const CACHE_DURATION = 24 * 60 * 60 * 1000
 
@@ -134,20 +136,36 @@ function stripHtml(html: string): string {
   return body.textContent?.trim() ?? ''
 }
 
+function getAllOriginsFeedUrl(feedUrl: string): string {
+  return `${ALL_ORIGINS_RAW_ENDPOINT}?url=${encodeURIComponent(feedUrl)}`
+}
+
+async function fetchText(url: string): Promise<string> {
+  const response = await fetch(url)
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch ${url}: ${response.status}`)
+  }
+
+  return response.text()
+}
+
+async function fetchFeed(feedUrl: string): Promise<string> {
+  try {
+    return await fetchText(feedUrl)
+  } catch {
+    return fetchText(getAllOriginsFeedUrl(feedUrl))
+  }
+}
+
 async function getFeedDescription(feedUrl: string): Promise<string> {
   if (!feedUrl) {
     return ''
   }
 
   try {
-    const response = await fetch(feedUrl)
-
-    if (!response.ok) {
-      return ''
-    }
-
     const xml = new DOMParser().parseFromString(
-      await response.text(),
+      await fetchFeed(feedUrl),
       'application/xml',
     )
 

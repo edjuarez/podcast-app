@@ -1,6 +1,7 @@
 import { http, HttpResponse } from 'msw'
 import { setupServer } from 'msw/node'
 import {
+  ALL_ORIGINS_RAW_ENDPOINT,
   FEED_URL,
   LOOKUP_ENDPOINT,
   PODCAST_ID,
@@ -10,7 +11,12 @@ import {
   topPodcastsResponse,
 } from './fixtures/podcasts'
 
-export { LOOKUP_ENDPOINT, TOP_PODCASTS_ENDPOINT }
+export { ALL_ORIGINS_RAW_ENDPOINT, FEED_URL, LOOKUP_ENDPOINT, TOP_PODCASTS_ENDPOINT }
+
+const feedResponse = () =>
+  HttpResponse.text(feedXml(), {
+    headers: { 'Content-Type': 'application/xml' },
+  })
 
 export const handlers = [
   http.get(TOP_PODCASTS_ENDPOINT, () =>
@@ -21,11 +27,8 @@ export const handlers = [
 
     return HttpResponse.json(lookupResponse({ podcast: { collectionId: Number(podcastId) } }))
   }),
-  http.get(FEED_URL, () =>
-    HttpResponse.text(feedXml(), {
-      headers: { 'Content-Type': 'application/xml' },
-    }),
-  ),
+  http.get(FEED_URL, feedResponse),
+  http.get(ALL_ORIGINS_RAW_ENDPOINT, feedResponse),
 ]
 
 export const server = setupServer(...handlers)

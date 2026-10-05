@@ -1,6 +1,14 @@
 export const PODCAST_ID = '1234567890'
 export const EPISODE_ID = '987654321'
 export const FEED_URL = 'https://feeds.test/podcast.xml'
+export const BLOCKED_FEED_URL = 'https://blocked.test/podcast.xml'
+export const ALL_ORIGINS_RAW_ENDPOINT = 'https://api.allorigins.win/raw'
+
+export function allOriginsFeedUrl(
+  feedUrl: string = FEED_URL,
+): string {
+  return `${ALL_ORIGINS_RAW_ENDPOINT}?url=${encodeURIComponent(feedUrl)}`
+}
 
 export const TOP_PODCASTS_ENDPOINT =
   'https://itunes.apple.com/us/rss/toppodcasts/limit=100/genre=1310/json'
@@ -46,6 +54,7 @@ export function topPodcastsResponse(count = 100) {
 
 interface PodcastResultOverrides {
   collectionId?: number
+  feedUrl?: string
 }
 
 export function lookupPodcastResult(overrides: PodcastResultOverrides = {}) {

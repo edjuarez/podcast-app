@@ -1,4 +1,12 @@
-import { PODCAST_ID } from '../test/fixtures/podcasts'
+import { http, HttpResponse } from 'msw'
+import {
+  BLOCKED_FEED_URL,
+  FEED_URL,
+  PODCAST_ID,
+  allOriginsFeedUrl,
+  lookupResponse,
+} from '../test/fixtures/podcasts'
+import { LOOKUP_ENDPOINT, server } from '../test/msw'
 import { getPodcastDetail, getTopPodcasts } from './podcastService'
 
 const TOP_PODCASTS_CACHE_KEY = 'podcast-app:top-podcasts'
@@ -81,5 +89,32 @@ describe('getPodcastDetail', () => {
 
     expect(cache.timestamp).toBe(FROZEN_NOW.getTime())
     expect(cache.data.podcast.title).toBe('Test Podcast')
+  })
+
+  it('loads the podcast description from the feed without a proxy when the direct request works', async () => {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch')
+
+    const detail = await getPodcastDetail(PODCAST_ID)
+
+    expect(detail.podcast.description).toBe('Default feed description')
+    expect(fetchSpy).toHaveBeenCalledWith(FEED_URL)
+    expect(fetchSpy).not.toHaveBeenCalledWith(allOriginsFeedUrl())
+  })
+
+  it('falls back to the AllOrigins proxy when the direct feed request fails', async () => {
+    server.use(
+      http.get(LOOKUP_ENDPOINT, () =>
+        HttpResponse.json(lookupResponse({ podcast: { feedUrl: BLOCKED_FEED_URL } })),
+      ),
+      http.get(BLOCKED_FEED_URL, () => HttpResponse.error()),
+    )
+
+    const fetchSpy = vi.spyOn(globalThis, 'fetch')
+
+    const detail = await getPodcastDetail(PODCAST_ID)
+
+    expect(detail.podcast.description).toBe('Default feed description')
+    expect(fetchSpy).toHaveBeenCalledWith(BLOCKED_FEED_URL)
+    expect(fetchSpy).toHaveBeenCalledWith(allOriginsFeedUrl(BLOCKED_FEED_URL))
   })
 })
