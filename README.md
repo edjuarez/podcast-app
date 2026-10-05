@@ -119,7 +119,7 @@ ARIA is kept minimal by relying on native HTML semantics wherever possible and u
 
 ### Testing
 
-Vitest covers the three views with integration tests driven by `renderApp` and MSW, plus unit tests for the 24 hour cache in `src/services/podcastService.ts`. Network calls are mocked with MSW so the suite runs without hitting the real API. The suite is intentionally small: one test per behaviour required by the technical test, with no duplicate coverage between views and components.
+The project includes automated tests: unit tests that validate individual pieces of logic in isolation, and integration tests that verify each of the three views works end to end. They are kept small and focused, covering each behaviour required by the technical test without duplicating coverage.
 
 ## Author
 
