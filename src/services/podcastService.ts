@@ -8,17 +8,65 @@ const PODCAST_DETAIL_URL = "https://itunes.apple.com/lookup";
 
 const ALL_ORIGINS_RAW_ENDPOINT = "https://api.allorigins.win/raw";
 
-const TOP_PODCASTS_CACHE_KEY = "podcast-app:top-podcasts";
+const CACHE_STORE_KEY = "podcast-app:store";
 const CACHE_DURATION = 24 * 60 * 60 * 1000;
 
-interface PodcastCache {
+interface CacheEntry<T> {
   timestamp: number;
-  data: Podcast[];
+  data: T;
 }
 
-interface PodcastDetailCache {
-  timestamp: number;
-  data: PodcastDetail;
+interface AppCacheStore {
+  topPodcasts?: CacheEntry<Podcast[]>;
+  podcastDetails: Record<string, CacheEntry<PodcastDetail>>;
+}
+
+function getCacheStore(): AppCacheStore {
+  try {
+    const raw = localStorage.getItem(CACHE_STORE_KEY);
+
+    if (!raw) {
+      return { podcastDetails: {} };
+    }
+
+    const parsed: AppCacheStore = JSON.parse(raw);
+
+    return {
+      topPodcasts: parsed.topPodcasts,
+      podcastDetails: parsed.podcastDetails ?? {},
+    };
+  } catch (error) {
+    console.warn("Failed to read cache store from localStorage:", error);
+
+    return { podcastDetails: {} };
+  }
+}
+
+function saveCacheStore(store: AppCacheStore): void {
+  try {
+    const now = Date.now();
+
+    const cleanDetails: Record<string, CacheEntry<PodcastDetail>> = {};
+
+    for (const [id, entry] of Object.entries(store.podcastDetails)) {
+      if (now - entry.timestamp < CACHE_DURATION) {
+        cleanDetails[id] = entry;
+      }
+    }
+
+    const isTopPodcastsValid =
+      store.topPodcasts &&
+      now - store.topPodcasts.timestamp < CACHE_DURATION;
+
+    const updatedStore: AppCacheStore = {
+      topPodcasts: isTopPodcastsValid ? store.topPodcasts : undefined,
+      podcastDetails: cleanDetails,
+    };
+
+    localStorage.setItem(CACHE_STORE_KEY, JSON.stringify(updatedStore));
+  } catch (error) {
+    console.warn("Could not persist cache store to localStorage:", error);
+  }
 }
 
 interface ItunesPodcast {
@@ -75,16 +123,14 @@ interface ItunesPodcastDetailResponse {
 }
 
 export async function getTopPodcasts(): Promise<Podcast[]> {
-  const cached = localStorage.getItem(TOP_PODCASTS_CACHE_KEY);
+  const store = getCacheStore();
+  const now = Date.now();
 
-  if (cached) {
-    const parsed: PodcastCache = JSON.parse(cached);
-
-    const isCacheValid = Date.now() - parsed.timestamp < CACHE_DURATION;
-
-    if (isCacheValid) {
-      return parsed.data;
-    }
+  if (
+    store.topPodcasts &&
+    now - store.topPodcasts.timestamp < CACHE_DURATION
+  ) {
+    return store.topPodcasts.data;
   }
 
   const response = await fetch(TOP_PODCASTS_URL);
@@ -103,17 +149,13 @@ export async function getTopPodcasts(): Promise<Podcast[]> {
     description: podcast.summary?.label ?? "",
   }));
 
-  try {
-    localStorage.setItem(
-      TOP_PODCASTS_CACHE_KEY,
-      JSON.stringify({
-        timestamp: Date.now(),
-        data: podcasts,
-      }),
-    );
-  } catch (error) {
-    console.warn("Could not cache podcasts", error);
-  }
+  saveCacheStore({
+    ...store,
+    topPodcasts: {
+      timestamp: now,
+      data: podcasts,
+    },
+  });
 
   return podcasts;
 }
@@ -192,17 +234,12 @@ async function getFeedDescription(feedUrl: string): Promise<string> {
 export async function getPodcastDetail(
   podcastId: string,
 ): Promise<PodcastDetail> {
-  const cacheKey = `podcast-app:podcast-detail:${podcastId}`;
-  const cached = localStorage.getItem(cacheKey);
+  const store = getCacheStore();
+  const now = Date.now();
+  const cachedDetail = store.podcastDetails[podcastId];
 
-  if (cached) {
-    const parsed: PodcastDetailCache = JSON.parse(cached);
-
-    const isCacheValid = Date.now() - parsed.timestamp < CACHE_DURATION;
-
-    if (isCacheValid) {
-      return parsed.data;
-    }
+  if (cachedDetail && now - cachedDetail.timestamp < CACHE_DURATION) {
+    return cachedDetail.data;
   }
 
   const url = `${PODCAST_DETAIL_URL}?id=${podcastId}&media=podcast&entity=podcastEpisode&limit=20`;
@@ -248,17 +285,16 @@ export async function getPodcastDetail(
     episodes,
   };
 
-  try {
-    localStorage.setItem(
-      cacheKey,
-      JSON.stringify({
-        timestamp: Date.now(),
+  saveCacheStore({
+    ...store,
+    podcastDetails: {
+      ...store.podcastDetails,
+      [podcastId]: {
+        timestamp: now,
         data: podcastDetail,
-      }),
-    );
-  } catch (error) {
-    console.warn("Could not cache podcast detail", error);
-  }
+      },
+    },
+  });
 
   return podcastDetail;
 }
