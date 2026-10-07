@@ -16,15 +16,15 @@ The main goal was not only to implement the required features, but also to keep 
 4. 🏗️ [Architecture](#️-architecture)
 5. 🪝 [Custom Hooks](#-custom-hooks)
 6. 🎨 [Design Decisions](#-design-decisions)
-   * 🧭 [Client-side Routing](#-client-side-routing)
-   * 🔎 [Filtering](#-filtering)
-   * 📝 [Podcast Description](#-podcast-description)
-   * 📄 [Episode Descriptions](#-episode-descriptions)
-   * ⏳ [Loading Indicator](#-loading-indicator)
-   * 🔄 [API Response Mapping](#-api-response-mapping)
-   * ⚠️ [Error Handling](#️-error-handling)
-   * 📊 [Episode List Semantics](#-episode-list-semantics)
-   * 🧪 [Testing Strategy](#-testing-strategy)
+   - 🧭 [Client-side Routing](#-client-side-routing)
+   - 🔎 [Filtering](#-filtering)
+   - 📝 [Podcast Description](#-podcast-description)
+   - 📄 [Episode Descriptions](#-episode-descriptions)
+   - ⏳ [Loading Indicator](#-loading-indicator)
+   - 🔄 [API Response Mapping](#-api-response-mapping)
+   - ⚠️ [Error Handling](#️-error-handling)
+   - 📊 [Episode List Semantics](#-episode-list-semantics)
+   - 🧪 [Testing Strategy](#-testing-strategy)
 7. 💾 [Caching Strategy](#-caching-strategy)
 8. 🌐 [Data Flow & API](#-data-flow--api)
 9. ♿ [Accessibility](#-accessibility)
@@ -36,32 +36,31 @@ The main goal was not only to implement the required features, but also to keep 
 15. 📚 [Data Sources](#-data-sources)
 16. 👤 [Author](#-author)
 
-
 ## ✨ Features
 
-* 🎧 Top 100 podcasts from the Apple Podcasts RSS JSON endpoint
-* 🔎 Instant filtering by podcast title or author
-* 📖 Podcast detail view with artwork, title, author, description and episode list
-* 🎵 Episode detail view with podcast information and native HTML5 audio player
-* 📝 Episode descriptions rendered as HTML
-* 💾 24-hour client-side cache using `localStorage`
-* ⏳ Loading indicator displayed in the header during navigation and data loading
-* ♿ Accessibility considerations based on WCAG 2.1 AA
-* 🚀 Client-side navigation with clean URLs and no full page reload
+- 🎧 Top 100 podcasts from the Apple Podcasts RSS JSON endpoint
+- 🔎 Instant filtering by podcast title or author
+- 📖 Podcast detail view with artwork, title, author, description and episode list
+- 🎵 Episode detail view with podcast information and native HTML5 audio player
+- 📝 Episode descriptions rendered as HTML
+- 💾 24-hour client-side cache using `localStorage`
+- ⏳ Loading indicator displayed in the header during navigation and data loading
+- ♿ Accessibility considerations based on WCAG 2.1 AA
+- 🚀 Client-side navigation with clean URLs and no full page reload
 
 ---
 
 ## 🛠️ Tech Stack
 
-* **React 19** — UI library
-* **TypeScript** — static typing
-* **Vite 8** — development server and build tool
-* **React Router 7** — client-side routing
-* **Tailwind CSS 4** — styling
-* **Vitest** — testing framework
-* **MSW** — network request mocking
-* **Apple Podcasts API** — podcast and episode data
-* **AllOrigins** — fallback for RSS feeds that do not allow direct cross-origin requests
+- **React 19** — UI library
+- **TypeScript** — static typing
+- **Vite 8** — development server and build tool
+- **React Router 7** — client-side routing
+- **Tailwind CSS 4** — styling
+- **Vitest** — testing framework
+- **MSW** — network request mocking
+- **Apple Podcasts API** — podcast and episode data
+- **AllOrigins** — fallback for RSS feeds that do not allow direct cross-origin requests
 
 ### Why this stack?
 
@@ -416,14 +415,14 @@ I decided to include accessibility as part of the project because it is an impor
 
 The UI was built with WCAG 2.1 AA considerations in mind, using native HTML semantics wherever possible and keeping ARIA usage to a minimum.
 
-* **Semantic HTML:** Uses `header`, `main`, `aside`, `section`, `article`, `table`, native form controls and React Router `Link`.
-* **Landmarks:** Views provide the appropriate page landmarks, with the header acting as the banner and the sidebar as complementary content.
-* **Headings:** The home view includes an accessible `h1` without affecting the visual card layout.
-* **Episode table:** Uses `scope="col"` and `scope="row"` to provide row and column context to screen readers.
-* **Filter input:** Has an accessible name through `aria-label`.
-* **Focus visibility:** Interactive elements maintain visible focus states.
-* **Images:** Decorative artwork uses an empty `alt` when the adjacent text already provides the accessible name.
-* **Loading indicator:** The navigation indicator is part of the header region so its state is available to assistive technology.
+- **Semantic HTML:** Uses `header`, `main`, `aside`, `section`, `article`, `table`, native form controls and React Router `Link`.
+- **Landmarks:** Views provide the appropriate page landmarks, with the header acting as the banner and the sidebar as complementary content.
+- **Headings:** The home view includes an accessible `h1` without affecting the visual card layout.
+- **Episode table:** Uses `scope="col"` and `scope="row"` to provide row and column context to screen readers.
+- **Filter input:** Has an accessible name through `aria-label`.
+- **Focus visibility:** Interactive elements maintain visible focus states.
+- **Images:** Decorative artwork uses an empty `alt` when the adjacent text already provides the accessible name.
+- **Loading indicator:** The navigation indicator is part of the header region so its state is available to assistive technology.
 
 ---
 
@@ -552,10 +551,10 @@ These are improvements rather than requirements for the current implementation.
 
 The application uses public Apple Podcasts data and podcast RSS feeds.
 
-* **Top podcasts:** Apple Podcasts RSS feed
-* **Podcast and episode data:** Apple Podcasts Lookup API
-* **Podcast descriptions:** Podcast RSS feeds
-* **RSS CORS fallback:** AllOrigins
+- **Top podcasts:** Apple Podcasts RSS feed
+- **Podcast and episode data:** Apple Podcasts Lookup API
+- **Podcast descriptions:** Podcast RSS feeds
+- **RSS CORS fallback:** AllOrigins
 
 No API key or backend service is required.
 
