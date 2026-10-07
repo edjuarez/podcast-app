@@ -1,5 +1,5 @@
-import { Link } from 'react-router-dom'
-import { NavigationIndicator } from './NavigationIndicator'
+import { Link } from "react-router-dom";
+import { NavigationIndicator } from "./NavigationIndicator";
 
 export function Header() {
   return (
@@ -14,5 +14,5 @@ export function Header() {
         <NavigationIndicator />
       </div>
     </header>
-  )
+  );
 }

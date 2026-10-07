@@ -1,37 +1,33 @@
-import { useEffect, useState } from 'react'
-import type { Podcast } from '../types/podcast'
-import { getTopPodcasts } from '../services/podcastService'
-import { useReportViewLoading } from './useViewLoading'
+import { useEffect, useState } from "react";
+import type { Podcast } from "../types/podcast";
+import { getTopPodcasts } from "../services/podcastService";
+import { useReportViewLoading } from "./useViewLoading";
 
 export function useTopPodcasts() {
-  const [podcasts, setPodcasts] = useState<Podcast[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<Error | null>(null)
+  const [podcasts, setPodcasts] = useState<Podcast[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
 
-  useReportViewLoading(loading)
+  useReportViewLoading(loading);
 
   useEffect(() => {
     async function loadPodcasts() {
       try {
-        const data = await getTopPodcasts()
-        setPodcasts(data)
+        const data = await getTopPodcasts();
+        setPodcasts(data);
       } catch (error) {
-        setError(
-          error instanceof Error
-            ? error
-            : new Error('Unknown error')
-        )
+        setError(error instanceof Error ? error : new Error("Unknown error"));
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
     }
 
-    loadPodcasts()
-  }, [])
+    loadPodcasts();
+  }, []);
 
   return {
     podcasts,
     loading,
     error,
-  }
+  };
 }

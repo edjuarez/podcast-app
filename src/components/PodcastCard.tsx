@@ -1,16 +1,13 @@
-import { Link } from 'react-router-dom'
-import type { Podcast } from '../types/podcast'
+import { Link } from "react-router-dom";
+import type { Podcast } from "../types/podcast";
 
 interface PodcastCardProps {
-  podcast: Podcast
+  podcast: Podcast;
 }
 
 export function PodcastCard({ podcast }: PodcastCardProps) {
   return (
-    <Link
-      to={`/podcast/${podcast.id}`}
-      className="group block pt-16"
-    >
+    <Link to={`/podcast/${podcast.id}`} className="group block pt-16">
       <article className="relative rounded-lg border border-gray-200 bg-white shadow-sm transition-shadow hover:shadow-md">
         <div className="absolute left-1/2 top-0 z-10 h-40 w-40 -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-full shadow-md">
           <img
@@ -31,5 +28,5 @@ export function PodcastCard({ podcast }: PodcastCardProps) {
         </div>
       </article>
     </Link>
-  )
+  );
 }

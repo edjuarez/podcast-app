@@ -1,29 +1,29 @@
-import { PodcastCard } from '../components/PodcastCard'
-import { useTopPodcasts } from '../hooks/useTopPodcasts'
-import { PodcastFilter } from '../components/PodcastFilter'
-import { useState } from 'react'
+import { PodcastCard } from "../components/PodcastCard";
+import { useTopPodcasts } from "../hooks/useTopPodcasts";
+import { PodcastFilter } from "../components/PodcastFilter";
+import { useState } from "react";
 
 export function HomeView() {
-  const { podcasts, loading, error } = useTopPodcasts()
-  const [filter, setFilter] = useState('')
+  const { podcasts, loading, error } = useTopPodcasts();
+  const [filter, setFilter] = useState("");
 
   if (loading) {
-    return null
+    return null;
   }
 
   if (error) {
-    console.error(error)
-    return null
+    console.error(error);
+    return null;
   }
 
-  const normalizedFilter = filter.trim().toLowerCase()
+  const normalizedFilter = filter.trim().toLowerCase();
 
   const filteredPodcasts = podcasts.filter((podcast) => {
     return (
       podcast.title.toLowerCase().includes(normalizedFilter) ||
       podcast.author.toLowerCase().includes(normalizedFilter)
-    )
-  })
+    );
+  });
 
   return (
     <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
@@ -43,5 +43,5 @@ export function HomeView() {
         ))}
       </ul>
     </main>
-  )
+  );
 }

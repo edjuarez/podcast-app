@@ -1,109 +1,107 @@
-import type { Episode } from '../types/episode'
-import type { Podcast, PodcastDetail } from '../types/podcast'
+import type { Episode } from "../types/episode";
+import type { Podcast, PodcastDetail } from "../types/podcast";
 
 const TOP_PODCASTS_URL =
-  'https://itunes.apple.com/us/rss/toppodcasts/limit=100/genre=1310/json'
+  "https://itunes.apple.com/us/rss/toppodcasts/limit=100/genre=1310/json";
 
-const PODCAST_DETAIL_URL =
-  'https://itunes.apple.com/lookup'
+const PODCAST_DETAIL_URL = "https://itunes.apple.com/lookup";
 
-const ALL_ORIGINS_RAW_ENDPOINT = 'https://api.allorigins.win/raw'
+const ALL_ORIGINS_RAW_ENDPOINT = "https://api.allorigins.win/raw";
 
-const TOP_PODCASTS_CACHE_KEY = 'podcast-app:top-podcasts'
-const CACHE_DURATION = 24 * 60 * 60 * 1000
+const TOP_PODCASTS_CACHE_KEY = "podcast-app:top-podcasts";
+const CACHE_DURATION = 24 * 60 * 60 * 1000;
 
 interface PodcastCache {
-  timestamp: number
-  data: Podcast[]
+  timestamp: number;
+  data: Podcast[];
 }
 
 interface PodcastDetailCache {
-  timestamp: number
-  data: PodcastDetail
+  timestamp: number;
+  data: PodcastDetail;
 }
 
 interface ItunesPodcast {
   id: {
     attributes: {
-      'im:id': string
-    }
-  }
+      "im:id": string;
+    };
+  };
 
-  'im:name': {
-    label: string
-  }
+  "im:name": {
+    label: string;
+  };
 
-  'im:artist': {
-    label: string
-  }
+  "im:artist": {
+    label: string;
+  };
 
-  'im:image': Array<{
-    label: string
-  }>
+  "im:image": Array<{
+    label: string;
+  }>;
 
   summary?: {
-    label: string
-  }
+    label: string;
+  };
 }
 
 interface ItunesTopPodcastsResponse {
   feed: {
-    entry: ItunesPodcast[]
-  }
+    entry: ItunesPodcast[];
+  };
 }
 
 interface ItunesPodcastResult {
-  wrapperType: string
-  kind?: string
-  collectionId?: number
-  trackId?: number
-  collectionName?: string
-  trackName?: string
-  artistName?: string
-  artworkUrl600?: string
-  artworkUrl100?: string
-  collectionCensoredName?: string
-  description?: string
-  releaseDate?: string
-  trackTimeMillis?: number
-  episodeUrl?: string
-  feedUrl?: string
+  wrapperType: string;
+  kind?: string;
+  collectionId?: number;
+  trackId?: number;
+  collectionName?: string;
+  trackName?: string;
+  artistName?: string;
+  artworkUrl600?: string;
+  artworkUrl100?: string;
+  collectionCensoredName?: string;
+  description?: string;
+  releaseDate?: string;
+  trackTimeMillis?: number;
+  episodeUrl?: string;
+  feedUrl?: string;
 }
 
 interface ItunesPodcastDetailResponse {
-  resultCount: number
-  results: ItunesPodcastResult[]
+  resultCount: number;
+  results: ItunesPodcastResult[];
 }
 
 export async function getTopPodcasts(): Promise<Podcast[]> {
-  const cached = localStorage.getItem(TOP_PODCASTS_CACHE_KEY)
+  const cached = localStorage.getItem(TOP_PODCASTS_CACHE_KEY);
 
   if (cached) {
-    const parsed: PodcastCache = JSON.parse(cached)
+    const parsed: PodcastCache = JSON.parse(cached);
 
-    const isCacheValid =
-      Date.now() - parsed.timestamp < CACHE_DURATION
+    const isCacheValid = Date.now() - parsed.timestamp < CACHE_DURATION;
 
     if (isCacheValid) {
-      return parsed.data
+      return parsed.data;
     }
   }
 
-  const response = await fetch(TOP_PODCASTS_URL)
+  const response = await fetch(TOP_PODCASTS_URL);
 
   if (!response.ok) {
-    throw new Error(`Failed to fetch podcasts: ${response.status}`)
+    throw new Error(`Failed to fetch podcasts: ${response.status}`);
   }
 
-  const data: ItunesTopPodcastsResponse = await response.json()
+  const data: ItunesTopPodcastsResponse = await response.json();
 
   const podcasts = data.feed.entry.map((podcast) => ({
-    id: podcast.id.attributes['im:id'],
-    title: podcast['im:name'].label,
-    author: podcast['im:artist'].label,
-    artworkUrl: podcast['im:image'][2]?.label ?? '',
-    description: podcast.summary?.label ?? '',
-  }))
+    id: podcast.id.attributes["im:id"],
+    title: podcast["im:name"].label,
+    author: podcast["im:artist"].label,
+    artworkUrl: podcast["im:image"][2]?.label ?? "",
+    description: podcast.summary?.label ?? "",
+  }));
 
   try {
     localStorage.setItem(
@@ -112,148 +110,143 @@ export async function getTopPodcasts(): Promise<Podcast[]> {
         timestamp: Date.now(),
         data: podcasts,
       }),
-    )
+    );
   } catch (error) {
-    console.warn('Could not cache podcasts', error)
+    console.warn("Could not cache podcasts", error);
   }
 
-  return podcasts
+  return podcasts;
 }
 
 function readChannelText(channel: Element, localName: string): string {
   for (const child of Array.from(channel.children)) {
     if (child.localName === localName) {
-      return child.textContent?.trim() ?? ''
+      return child.textContent?.trim() ?? "";
     }
   }
 
-  return ''
+  return "";
 }
 
 function stripHtml(html: string): string {
-  const { body } = new DOMParser().parseFromString(html, 'text/html')
+  const { body } = new DOMParser().parseFromString(html, "text/html");
 
-  return body.textContent?.trim() ?? ''
+  return body.textContent?.trim() ?? "";
 }
 
 function getAllOriginsFeedUrl(feedUrl: string): string {
-  return `${ALL_ORIGINS_RAW_ENDPOINT}?url=${encodeURIComponent(feedUrl)}`
+  return `${ALL_ORIGINS_RAW_ENDPOINT}?url=${encodeURIComponent(feedUrl)}`;
 }
 
 async function fetchText(url: string): Promise<string> {
-  const response = await fetch(url)
+  const response = await fetch(url);
 
   if (!response.ok) {
-    throw new Error(`Failed to fetch ${url}: ${response.status}`)
+    throw new Error(`Failed to fetch ${url}: ${response.status}`);
   }
 
-  return response.text()
+  return response.text();
 }
 
 async function fetchFeed(feedUrl: string): Promise<string> {
   try {
-    return await fetchText(feedUrl)
+    return await fetchText(feedUrl);
   } catch {
-    return fetchText(getAllOriginsFeedUrl(feedUrl))
+    return fetchText(getAllOriginsFeedUrl(feedUrl));
   }
 }
 
 async function getFeedDescription(feedUrl: string): Promise<string> {
   if (!feedUrl) {
-    return ''
+    return "";
   }
 
   try {
     const xml = new DOMParser().parseFromString(
       await fetchFeed(feedUrl),
-      'application/xml',
-    )
+      "application/xml",
+    );
 
-    if (xml.querySelector('parsererror')) {
-      return ''
+    if (xml.querySelector("parsererror")) {
+      return "";
     }
 
-    const channel = xml.querySelector('channel')
+    const channel = xml.querySelector("channel");
 
     if (!channel) {
-      return ''
+      return "";
     }
 
     const text =
-      readChannelText(channel, 'summary') ||
-      readChannelText(channel, 'description')
+      readChannelText(channel, "summary") ||
+      readChannelText(channel, "description");
 
-    return text ? stripHtml(text) : ''
+    return text ? stripHtml(text) : "";
   } catch (error) {
-    console.warn('Could not load podcast description from feed', error)
+    console.warn("Could not load podcast description from feed", error);
 
-    return ''
+    return "";
   }
 }
 
 export async function getPodcastDetail(
   podcastId: string,
 ): Promise<PodcastDetail> {
-  const cacheKey = `podcast-app:podcast-detail:${podcastId}`
-  const cached = localStorage.getItem(cacheKey)
+  const cacheKey = `podcast-app:podcast-detail:${podcastId}`;
+  const cached = localStorage.getItem(cacheKey);
 
   if (cached) {
-    const parsed: PodcastDetailCache = JSON.parse(cached)
+    const parsed: PodcastDetailCache = JSON.parse(cached);
 
-    const isCacheValid =
-      Date.now() - parsed.timestamp < CACHE_DURATION
+    const isCacheValid = Date.now() - parsed.timestamp < CACHE_DURATION;
 
     if (isCacheValid) {
-      return parsed.data
+      return parsed.data;
     }
   }
 
-  const url = `${PODCAST_DETAIL_URL}?id=${podcastId}&media=podcast&entity=podcastEpisode&limit=20`
+  const url = `${PODCAST_DETAIL_URL}?id=${podcastId}&media=podcast&entity=podcastEpisode&limit=20`;
 
-  const response = await fetch(url)
+  const response = await fetch(url);
 
   if (!response.ok) {
-    throw new Error(
-      `Failed to fetch podcast detail: ${response.status}`,
-    )
+    throw new Error(`Failed to fetch podcast detail: ${response.status}`);
   }
 
-  const data: ItunesPodcastDetailResponse = await response.json()
+  const data: ItunesPodcastDetailResponse = await response.json();
 
   const podcastResult = data.results.find(
     (result) => String(result.collectionId) === podcastId,
-  )
+  );
 
   if (!podcastResult) {
-    throw new Error('Podcast not found')
+    throw new Error("Podcast not found");
   }
 
   const podcast: Podcast = {
     id: String(podcastResult.collectionId ?? podcastId),
-    title: podcastResult.collectionName ?? '',
-    author: podcastResult.artistName ?? '',
+    title: podcastResult.collectionName ?? "",
+    author: podcastResult.artistName ?? "",
     artworkUrl:
-      podcastResult.artworkUrl600 ??
-      podcastResult.artworkUrl100 ??
-      '',
-    description: await getFeedDescription(podcastResult.feedUrl ?? ''),
-  }
+      podcastResult.artworkUrl600 ?? podcastResult.artworkUrl100 ?? "",
+    description: await getFeedDescription(podcastResult.feedUrl ?? ""),
+  };
 
   const episodes: Episode[] = data.results
-    .filter((result) => result.kind === 'podcast-episode')
+    .filter((result) => result.kind === "podcast-episode")
     .map((episode) => ({
-      id: String(episode.trackId ?? ''),
-      title: episode.trackName ?? '',
-      description: episode.description ?? '',
-      date: episode.releaseDate ?? '',
+      id: String(episode.trackId ?? ""),
+      title: episode.trackName ?? "",
+      description: episode.description ?? "",
+      date: episode.releaseDate ?? "",
       duration: episode.trackTimeMillis ?? 0,
-      audioUrl: episode.episodeUrl ?? '',
-    }))
+      audioUrl: episode.episodeUrl ?? "",
+    }));
 
   const podcastDetail: PodcastDetail = {
     podcast,
     episodes,
-  }
+  };
 
   try {
     localStorage.setItem(
@@ -262,10 +255,10 @@ export async function getPodcastDetail(
         timestamp: Date.now(),
         data: podcastDetail,
       }),
-    )
+    );
   } catch (error) {
-    console.warn('Could not cache podcast detail', error)
+    console.warn("Could not cache podcast detail", error);
   }
 
-  return podcastDetail
+  return podcastDetail;
 }

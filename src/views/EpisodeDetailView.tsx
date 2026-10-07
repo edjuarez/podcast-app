@@ -1,40 +1,34 @@
-import { useParams } from 'react-router-dom'
-import { PodcastSidebar } from '../components/PodcastSidebar'
-import { usePodcastDetail } from '../hooks/usePodcastDetail'
+import { useParams } from "react-router-dom";
+import { PodcastSidebar } from "../components/PodcastSidebar";
+import { usePodcastDetail } from "../hooks/usePodcastDetail";
 
 export function EpisodeDetailView() {
   const { podcastId, episodeId } = useParams<{
-    podcastId: string
-    episodeId: string
-  }>()
+    podcastId: string;
+    episodeId: string;
+  }>();
 
-  const {
-    podcastDetail,
-    loading,
-    error,
-  } = usePodcastDetail(podcastId ?? '')
+  const { podcastDetail, loading, error } = usePodcastDetail(podcastId ?? "");
 
   if (loading) {
-    return null
+    return null;
   }
 
   if (error) {
-    console.error(error)
-    return null
+    console.error(error);
+    return null;
   }
 
   if (!podcastDetail) {
-    return null
+    return null;
   }
 
-  const { podcast, episodes } = podcastDetail
+  const { podcast, episodes } = podcastDetail;
 
-  const episode = episodes.find(
-    (episode) => episode.id === episodeId,
-  )
+  const episode = episodes.find((episode) => episode.id === episodeId);
 
   if (!episode) {
-    return null
+    return null;
   }
 
   return (
@@ -42,9 +36,7 @@ export function EpisodeDetailView() {
       <PodcastSidebar podcast={podcast} />
 
       <section className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-        <h1 className="text-2xl font-bold">
-          {episode.title}
-        </h1>
+        <h1 className="text-2xl font-bold">{episode.title}</h1>
 
         <div
           className="mt-6"
@@ -53,12 +45,8 @@ export function EpisodeDetailView() {
           }}
         />
 
-        <audio
-          controls
-          className="mt-6 w-full"
-          src={episode.audioUrl}
-        />
+        <audio controls className="mt-6 w-full" src={episode.audioUrl} />
       </section>
     </main>
-  )
+  );
 }

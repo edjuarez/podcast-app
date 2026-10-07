@@ -1,98 +1,97 @@
-import { screen, waitFor, within } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
-import { delay, http, HttpResponse } from 'msw'
-import { TOP_PODCASTS_ENDPOINT, server } from '../test/msw'
-import { topPodcastsResponse } from '../test/fixtures/podcasts'
-import { renderApp } from '../test/renderApp'
+import { screen, waitFor, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { delay, http, HttpResponse } from "msw";
+import { TOP_PODCASTS_ENDPOINT, server } from "../test/msw";
+import { topPodcastsResponse } from "../test/fixtures/podcasts";
+import { renderApp } from "../test/renderApp";
 
 function getHeaderIndicators() {
-  const headerRow = screen.getByRole('banner')
-    .firstElementChild as HTMLElement
+  const headerRow = screen.getByRole("banner").firstElementChild as HTMLElement;
 
   return Array.from(headerRow.children).filter(
-    (child) => child.tagName !== 'A',
-  )
+    (child) => child.tagName !== "A",
+  );
 }
 
 async function renderLoadedHome() {
-  const result = renderApp('/')
+  const result = renderApp("/");
 
-  await screen.findAllByRole('listitem')
+  await screen.findAllByRole("listitem");
 
   return {
     ...result,
-    filter: screen.getByRole('textbox', { name: 'Filter podcasts' }),
-  }
+    filter: screen.getByRole("textbox", { name: "Filter podcasts" }),
+  };
 }
 
-describe('HomeView', () => {
-  it('renders one card per podcast returned by the API', async () => {
-    await renderLoadedHome()
+describe("HomeView", () => {
+  it("renders one card per podcast returned by the API", async () => {
+    await renderLoadedHome();
 
-    const cards = screen.getAllByRole('listitem')
+    const cards = screen.getAllByRole("listitem");
 
-    expect(cards).toHaveLength(100)
+    expect(cards).toHaveLength(100);
 
-    const [firstCard] = cards
+    const [firstCard] = cards;
 
     expect(
-      within(firstCard).getByRole('heading', { name: 'Podcast 1' }),
-    ).toBeInTheDocument()
-    expect(firstCard).toHaveTextContent('Author: Author 1')
-  })
+      within(firstCard).getByRole("heading", { name: "Podcast 1" }),
+    ).toBeInTheDocument();
+    expect(firstCard).toHaveTextContent("Author: Author 1");
+  });
 
-  it('shows a loading indicator in the header until the podcasts are fetched', async () => {
+  it("shows a loading indicator in the header until the podcasts are fetched", async () => {
     server.use(
       http.get(TOP_PODCASTS_ENDPOINT, async () => {
-        await delay(50)
+        await delay(50);
 
-        return HttpResponse.json(topPodcastsResponse())
+        return HttpResponse.json(topPodcastsResponse());
       }),
-    )
+    );
 
-    renderApp('/')
+    renderApp("/");
 
-    expect(getHeaderIndicators()).toHaveLength(1)
+    expect(getHeaderIndicators()).toHaveLength(1);
 
-    await screen.findAllByRole('listitem')
+    await screen.findAllByRole("listitem");
 
     await waitFor(() => {
-      expect(getHeaderIndicators()).toHaveLength(0)
-    })
-  })
+      expect(getHeaderIndicators()).toHaveLength(0);
+    });
+  });
 
-  it('filters the podcasts by title', async () => {
-    const user = userEvent.setup()
-    const { filter } = await renderLoadedHome()
+  it("filters the podcasts by title", async () => {
+    const user = userEvent.setup();
+    const { filter } = await renderLoadedHome();
 
-    await user.type(filter, 'Podcast 42')
+    await user.type(filter, "Podcast 42");
 
     expect(
-      screen.getByRole('heading', { name: 'Podcast 42' }),
-    ).toBeInTheDocument()
+      screen.getByRole("heading", { name: "Podcast 42" }),
+    ).toBeInTheDocument();
     expect(
-      screen.queryByRole('heading', { name: 'Podcast 43' }),
-    ).not.toBeInTheDocument()
-  })
+      screen.queryByRole("heading", { name: "Podcast 43" }),
+    ).not.toBeInTheDocument();
+  });
 
-  it('filters the podcasts by author and updates the result count', async () => {
-    const user = userEvent.setup()
-    const { filter } = await renderLoadedHome()
+  it("filters the podcasts by author and updates the result count", async () => {
+    const user = userEvent.setup();
+    const { filter } = await renderLoadedHome();
 
-    expect(screen.getByText('100')).toBeInTheDocument()
+    expect(screen.getByText("100")).toBeInTheDocument();
 
-    await user.type(filter, 'Author 3')
+    await user.type(filter, "Author 3");
 
-    expect(screen.getAllByRole('listitem')).toHaveLength(20)
-    expect(screen.getByText('20')).toBeInTheDocument()
-  })
+    expect(screen.getAllByRole("listitem")).toHaveLength(20);
+    expect(screen.getByText("20")).toBeInTheDocument();
+  });
 
-  it('navigates to the podcast detail when a card is clicked', async () => {
-    const user = userEvent.setup()
-    const { router } = await renderLoadedHome()
+  it("navigates to the podcast detail when a card is clicked", async () => {
+    const user = userEvent.setup();
+    const { router } = await renderLoadedHome();
 
-    await user.click(screen.getByRole('heading', { name: 'Podcast 42' }))
+    await user.click(screen.getByRole("heading", { name: "Podcast 42" }));
 
-    expect(router.state.location.pathname).toBe('/podcast/1041')
-  })
-})
+    expect(router.state.location.pathname).toBe("/podcast/1041");
+  });
+});
