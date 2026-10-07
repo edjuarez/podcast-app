@@ -1,0 +1,36 @@
+.home-view {
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.podcast-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  margin-top: 2rem;
+  list-style: none;
+  padding: 0;
+}
+
+@media (min-width: 640px) {
+  .home-view {
+    padding-right: 1.5rem;
+    padding-left: 1.5rem;
+  }
+
+  .podcast-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .home-view {
+    padding-right: 2rem;
+    padding-left: 2rem;
+  }
+
+  .podcast-list {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}

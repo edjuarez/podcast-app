@@ -1,0 +1,41 @@
+.episode-view {
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+.episode-content {
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  background: #ffffff;
+  padding: 1.5rem;
+  box-shadow: 0 1px 5px rgb(0 0 0 / 0.19);
+}
+
+.episode-title {
+  margin: 0;
+  font-size: 1.5rem;
+  line-height: 2rem;
+  font-weight: 700;
+}
+
+.episode-description {
+  margin-top: 1.5rem;
+}
+
+.episode-audio {
+  display: block;
+  width: 100%;
+  margin-top: 1.5rem;
+}
+
+@media (min-width: 1024px) {
+  .episode-view {
+    grid-template-columns: 280px 1fr;
+  }
+}

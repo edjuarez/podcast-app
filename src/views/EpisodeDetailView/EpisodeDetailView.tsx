@@ -1,6 +1,7 @@
 import { useParams } from "react-router-dom";
-import { PodcastSidebar } from "../components/PodcastSidebar";
-import { usePodcastDetail } from "../hooks/usePodcastDetail";
+import { PodcastSidebar } from "../../components/PodcastSidebar";
+import { usePodcastDetail } from "../../hooks/usePodcastDetail";
+import "./EpisodeDetailView.css";
 
 export function EpisodeDetailView() {
   const { podcastId, episodeId } = useParams<{
@@ -32,20 +33,24 @@ export function EpisodeDetailView() {
   }
 
   return (
-    <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 grid lg:grid-cols-[280px_1fr] gap-8 items-start">
+    <main className="episode-view">
       <PodcastSidebar podcast={podcast} />
 
-      <section className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-        <h1 className="text-2xl font-bold">{episode.title}</h1>
+      <section className="episode-content">
+        <h1 className="episode-title">{episode.title}</h1>
 
         <div
-          className="mt-6"
+          className="episode-description"
           dangerouslySetInnerHTML={{
             __html: episode.description,
           }}
         />
 
-        <audio controls className="mt-6 w-full" src={episode.audioUrl} />
+        <audio
+          controls
+          className="episode-audio"
+          src={episode.audioUrl}
+        />
       </section>
     </main>
   );

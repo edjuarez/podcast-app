@@ -1,9 +1,9 @@
 import { render } from "@testing-library/react";
 import { RouterProvider, createMemoryRouter } from "react-router-dom";
 import App from "../App";
-import { EpisodeDetailView } from "../views/EpisodeDetailView";
-import { HomeView } from "../views/HomeView";
-import { PodcastDetailView } from "../views/PodcastDetailView";
+import { EpisodeDetailView } from "../views/EpisodeDetailView/EpisodeDetailView";
+import { HomeView } from "../views/HomeView/HomeView";
+import { PodcastDetailView } from "../views/PodcastDetailView/PodcastDetailView";
 
 export function renderApp(initialPath = "/") {
   const router = createMemoryRouter(
