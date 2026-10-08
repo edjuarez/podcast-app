@@ -1,0 +1,28 @@
+.podcast-filter {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+.podcast-filter-count {
+  border-radius: 0.25rem;
+  background: #2e79ad;
+  padding: 0.25rem 0.75rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.podcast-filter-input {
+  width: 100%;
+  max-width: 20rem;
+  border: 1px solid #6b7280;
+  border-radius: 0.25rem;
+  padding: 0.5rem 0.75rem;
+}
+
+.podcast-filter-input:focus-visible {
+  outline: 2px solid #4897ce;
+  outline-offset: 2px;
+}

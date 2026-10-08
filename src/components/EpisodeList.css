@@ -1,0 +1,66 @@
+.episode-list {
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  background: #ffffff;
+  box-shadow: 0 1px 5px rgb(0 0 0 / 0.19);
+}
+
+.episode-list table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.episode-list thead tr {
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.episode-list th,
+.episode-list td {
+  padding: 1rem;
+}
+
+.episode-list thead th {
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+}
+
+.episode-list thead th:nth-child(2) {
+  width: 120px;
+}
+
+.episode-list thead th:nth-child(3) {
+  width: 100px;
+}
+
+.episode-list tbody tr {
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.episode-list tbody tr:last-child {
+  border-bottom: 0;
+}
+
+.episode-list tbody th {
+  text-align: left;
+  font-weight: 400;
+}
+
+.episode-list a {
+  font-weight: 600;
+  color: #2e79ad;
+}
+
+.episode-list a:hover {
+  text-decoration: underline;
+}
+
+.episode-list td {
+  vertical-align: middle;
+  font-size: 0.875rem;
+  color: #4b5563;
+}

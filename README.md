@@ -1,126 +1,720 @@
-# Podcast App
+# 🎙️ Podcast App
 
-React + TypeScript podcast SPA built as a frontend technical test. It consumes the Apple Podcasts (iTunes) API with client-side routing, 24 hour client-side caching and a responsive UI.
+React + TypeScript podcast SPA built as a frontend technical test.
 
-## Tech Stack
+The application consumes the public Apple Podcasts API and RSS feeds, with client-side routing, local caching and a responsive interface.
 
-* React 19
-* TypeScript
-* Vite 8
-* Tailwind CSS
-* React Router
-* Apple Podcasts API
+The main goal was not only to implement the required features, but also to keep the application structure simple, maintainable and easy to reason about.
 
-## Features
+---
 
-* Top 100 podcasts from the Apple Top Podcasts RSS JSON endpoint.
-* Instant filtering by title or author.
-* Podcast detail view with a sidebar (artwork, title, author, description) and an episode list showing title, date and duration.
-* Episode detail view with the podcast sidebar and a native HTML5 audio player.
-* Episode descriptions are rendered as HTML instead of escaped markup.
-* 24 hour client-side cache for both the Top 100 feed and every podcast detail, backed by `localStorage`.
-* Visual loading indicator in the header, visible from the start of a navigation until the target view has loaded all of its data.
-* Accessibility: landmarks, a real table for the episode list, an accessible name for the filter input and visible focus indicators.
+## 📚 Contents
 
-## Routes
+1. ✨ [Features](#-features)
+2. 🛠️ [Tech Stack](#️-tech-stack)
+3. 📁 [Project Structure](#-project-structure)
+4. 🏗️ [Architecture](#️-architecture)
+5. 🪝 [Custom Hooks](#-custom-hooks)
+6. 🎨 [Design Decisions](#-design-decisions)
 
-| Route | View |
-| --- | --- |
-| `/` | Top podcasts with filtering |
-| `/podcast/:podcastId` | Podcast detail with episode list |
-| `/podcast/:podcastId/episode/:episodeId` | Episode detail with audio player |
+   * 🧭 [Client-side Routing](#-client-side-routing)
+   * 🔎 [Filtering](#-filtering)
+   * 📝 [Podcast Description](#-podcast-description)
+   * 📄 [Episode Descriptions](#-episode-descriptions)
+   * ⏳ [Loading Indicator](#-loading-indicator)
+   * 🔄 [API Response Mapping](#-api-response-mapping)
+   * ⚠️ [Error Handling](#️-error-handling)
+   * 📊 [Episode List Semantics](#-episode-list-semantics)
+   * 🧪 [Testing Strategy](#-testing-strategy)
+7. 💾 [Caching Strategy](#-caching-strategy)
+8. 🌐 [Data Flow & API](#-data-flow--api)
+9. ♿ [Accessibility](#-accessibility)
+10. 📦 [Development](#-development)
+11. 🏭 [Production](#-production)
+12. 🧪 [Tests](#-tests)
+13. 🚀 [Deployment](#-deployment)
+14. 🔎 [Trade-offs & Possible Improvements](#-trade-offs--possible-improvements)
+15. 📚 [Data Sources](#-data-sources)
+16. 👤 [Author](#-author)
 
-Navigation is client-side, uses clean URLs and never reloads the document.
+## ✨ Features
 
-## Project Structure
+* 🎧 Top 100 podcasts from the Apple Podcasts RSS JSON endpoint
+* 🔎 Instant filtering by podcast title or author
+* 📖 Podcast detail view with artwork, title, author, description and episode list
+* 🎵 Episode detail view with podcast information and native HTML5 audio player
+* 📝 Episode descriptions rendered as HTML
+* 💾 24-hour client-side cache using `localStorage`
+* ⏳ Loading indicator displayed in the header during navigation and data loading
+* ♿ Accessibility considerations based on WCAG 2.1 AA
+* 🚀 Client-side navigation with clean URLs and no full page reload
+
+---
+
+## 🛠️ Tech Stack
+
+* **React 19** — UI library
+* **TypeScript** — static typing
+* **Vite 8** — development server and build tool
+* **React Router 7** — client-side routing
+* **CSS** — application styling and responsive layouts
+* **Vitest** — testing framework
+* **MSW** — network request mocking
+* **Apple Podcasts API** — podcast and episode data
+* **AllOrigins** — fallback for RSS feeds that do not allow direct cross-origin requests
+
+### Why this stack?
+
+I chose technologies that fit the size and requirements of the application without introducing unnecessary infrastructure or dependencies.
+
+For example, I used Vite instead of setting up a custom Webpack configuration because the application does not need a complex build pipeline. Vite provides a simple development experience while still producing optimized production builds.
+
+I also chose React because the exercise is specifically focused on building a frontend SPA, and React Router provides the client-side routing needed by the application without introducing another routing abstraction.
+
+---
+
+## 📁 Project Structure
 
 ```text
 src/
-├── components/   reusable UI: cards, episode list, sidebar, header, filter
-├── views/        route level components
-├── hooks/        data loading hooks
-├── services/     API access and caching
-├── types/        shared domain types
-├── App.tsx       layout, header and route change announcements
-├── main.tsx      router setup
-└── index.css     global styles
+
+├── components/   Reusable UI components
+├── views/        Route-level components
+├── hooks/        Data and shared state hooks
+├── services/     API access, response mapping and caching
+├── types/        Application domain types
+├── test/         Test infrastructure, fixtures and MSW handlers
+├── App.tsx       Application layout and route shell
+├── main.tsx      Application entry point and router setup
+└── index.css     Global styles
 ```
 
+The structure is intentionally simple. Each layer has a specific responsibility instead of introducing additional abstraction for its own sake.
 
-## Development
+---
 
-Requires Node.js `^20.19.0` or `>=22.12.0`, which is the minimum enforced by Vite 8.
+## 🏗️ Architecture
 
-Install dependencies:
+The application follows a small layered architecture:
+
+```text
+main.tsx / App.tsx
+
+        ↓
+
+      views/
+
+        ↓
+
+      hooks/
+
+        ↓
+
+    services/
+
+        ↓
+
+       API
+```
+
+### Responsibilities
+
+**`views/`**
+
+Route-level components. They decide which data and components are needed to render each page, but do not communicate directly with the API.
+
+**`hooks/`**
+
+Handle the lifecycle of asynchronous data and shared loading state. They expose the information that the views need without making the views responsible for the request implementation.
+
+**`services/`**
+
+The only layer responsible for API requests, response mapping and caching. This keeps external API details away from the UI.
+
+**`components/`**
+
+Reusable and mostly presentational components. They receive data through typed props and do not access services directly.
+
+**`types/`**
+
+Contains the application's own domain models such as `Podcast`, `Episode` and `PodcastDetail`.
+
+### Data flow
+
+A typical request follows this flow:
+
+```text
+View
+
+ ↓
+
+Custom Hook
+
+ ↓
+
+Service
+
+ ↓
+
+API / Cache
+
+ ↓
+
+API response mapping
+
+ ↓
+
+Hook state
+
+ ↓
+
+View
+```
+
+I chose this separation because I did not want API calls and external data structures spread throughout the UI. If the Apple API changes, the service layer is the main place that needs to adapt.
+
+The raw Apple response types are therefore kept inside the service layer and mapped into the application's own models before the data reaches the views.
+
+---
+
+## 🪝 Custom Hooks
+
+The custom hooks connect the views with the data and shared loading state while keeping the implementation details outside the UI components.
+
+### `useTopPodcasts`
+
+Loads the Top 100 podcasts and exposes the resulting data, loading state and error state to `HomeView`.
+
+The view does not need to know how the request is made or how the data is cached.
+
+### `usePodcastDetail`
+
+Loads the podcast details and exposes the data, loading state and error state to the detail views.
+
+Keeping this logic inside the hook prevents the views from having to repeat request and `useEffect` logic.
+
+### `useReportViewLoading`
+
+Allows a routed view to report when it starts and finishes loading.
+
+This is needed because the loading indicator is rendered in the header, while the actual data loading happens inside the routed view.
+
+Each view reports its loading state to the `LoadingProvider`, which keeps track of the active loading states.
+
+### `useViewLoading`
+
+Provides access to the shared loading state through the `LoadingProvider`.
+
+The `NavigationIndicator` uses this hook to determine whether it should be visible in the header.
+
+The relationship is:
+
+```text
+Routed View
+
+     ↓
+
+useReportViewLoading
+
+     ↓
+
+LoadingProvider
+
+     ↓
+
+useViewLoading
+
+     ↓
+
+NavigationIndicator
+
+     ↓
+
+Header
+```
+
+This keeps the header independent from the individual views while still allowing it to react to their loading state.
+
+---
+
+# 🎨 Design Decisions
+
+This section explains not only what was implemented, but why I chose each approach and what alternatives I considered.
+
+## 🧭 Client-side routing
+
+**Decision:** Use `createBrowserRouter` with browser history.
+
+The exercise requires client-side navigation, clean URLs and no hash routing.
+
+I chose browser history because it produces regular URLs such as:
+
+```text
+/podcast/123
+
+/podcast/123/episode/456
+```
+
+instead of hash-based URLs such as:
+
+```text
+/#/podcast/123
+```
+
+I considered `HashRouter`, but it would not satisfy the clean URL requirement.
+
+For deployment, Vercel rewrites unknown paths to `index.html`, which allows direct navigation and page refreshes on nested routes.
+
+---
+
+## 🔎 Filtering
+
+**Decision:** Filter the already loaded podcasts locally using `Array.filter()`.
+
+The application only loads 100 podcasts, so there is no practical reason to make another request or introduce more complex state management just for filtering.
+
+The filter checks both the podcast title and author and normalizes the values so that the search is case-insensitive.
+
+I considered debouncing and server-side filtering, but those approaches would add complexity without providing a meaningful benefit for such a small dataset.
+
+---
+
+## 📝 Podcast description
+
+**Decision:** Retrieve the long podcast description from the RSS feed.
+
+The Apple Lookup API does not provide the description in the format required by the application, so the podcast's `feedUrl` is used to retrieve the RSS feed.
+
+The service first tries the feed directly. If the browser blocks the request because of CORS, it falls back to AllOrigins.
+
+I chose not to always use the proxy because some feeds already allow direct cross-origin requests. Using the proxy only when necessary avoids an unnecessary third-party request in those cases.
+
+The extracted description is also stored together with the podcast detail in the cache, so repeat visits do not require another RSS request while the cache is valid.
+
+---
+
+## 📄 Episode descriptions
+
+**Decision:** Render the RSS description using `dangerouslySetInnerHTML`.
+
+The RSS feed contains formatted HTML and the requirement is to render that formatting rather than display the markup as plain text.
+
+Rendering it as escaped text would be safer but would not meet the requirement.
+
+This is therefore a deliberate trade-off based on the source of the content and the requirements of the exercise.
+
+---
+
+## ⏳ Loading indicator
+
+**Decision:** Use `LoadingProvider` and React Context.
+
+The loading state originates inside routed views, but the visual indicator is rendered in the header. These components are therefore in different parts of the component tree.
+
+Context provides a simple way for the header to access the shared state without passing props through unrelated components.
+
+I considered Redux and Zustand, but both would introduce unnecessary complexity for this particular use case. The application only needs a small piece of shared UI state, so Context is enough.
+
+I also chose not to hide the indicator immediately after the route changes. A route transition can happen before the destination view has finished loading its data.
+
+The indicator therefore stays visible until the destination view has finished loading the data it needs.
+
+---
+
+## 🔄 API response mapping
+
+**Decision:** Map Apple API responses into application-specific domain models.
+
+The UI should not need to know how Apple's API structures its response.
+
+The raw API types remain inside the service layer and are transformed into models such as `Podcast`, `Episode` and `PodcastDetail`.
+
+I chose this approach because it keeps external API concerns isolated. If the API response changes, the service can adapt without requiring components throughout the application to change.
+
+---
+
+## ⚠️ Error handling
+
+**Decision:** Report errors through the console instead of displaying an error UI.
+
+This follows the requirements of the exercise.
+
+Errors are kept as real `Error` objects as they move through the service and hook layers. The views then log them with `console.error(error)`, preserving the message and stack trace.
+
+I did not introduce a global error notification or error screen because the exercise explicitly requires console-based error reporting.
+
+---
+
+## 📊 Episode list semantics
+
+**Decision:** Use a native HTML `<table>`.
+
+Episodes naturally form tabular data, with columns such as title, date and duration.
+
+I considered using `<div>` elements styled as a table, but a native `<table>` already provides the correct semantic structure for assistive technologies.
+
+The table also uses `scope` attributes so screen readers can correctly associate headers with their rows and columns.
+
+---
+
+## 🧪 Testing strategy
+
+**Decision:** Use Vitest and MSW.
+
+I chose Vitest because it integrates naturally with the Vite setup and requires little additional configuration.
+
+MSW intercepts HTTP requests at the network layer. This allows the application to behave as if it were communicating with the real API without coupling the production code to test-specific mocks.
+
+I also use fake timers for cache tests so the 24-hour expiration boundary can be tested deterministically.
+
+The test suite covers the main application flows, service layer and custom hooks.
+
+Custom hooks are tested in isolation by mocking the service layer. This allows their loading, success, error and dependency behavior to be verified without making real API requests.
+
+---
+
+# 💾 Caching Strategy
+
+The application uses `localStorage` with a 24-hour TTL.
+
+The cache is stored in a single shared `localStorage` entry:
+
+```text
+podcast-app:store
+```
+
+The stored structure contains separate sections for the Top 100 podcasts and podcast details:
+
+```text
+{
+  topPodcasts: {
+    timestamp,
+    data
+  },
+  podcastDetails: {
+    [podcastId]: {
+      timestamp,
+      data
+    }
+  }
+}
+```
+
+The idea is simple: before making a request, the service checks whether valid data is already stored locally.
+
+If the data is less than 24 hours old, it is returned immediately.
+
+If it is missing or expired, the API is requested again and the new result replaces the old cache entry.
+
+### Why `localStorage`?
+
+I chose `localStorage` because the requirement is to reuse the data across page reloads and browser sessions.
+
+`sessionStorage` would not be enough because its data is tied to the browser session.
+
+I also considered using React Query or SWR, but for this application the caching requirements are relatively simple and there are only a few resources to manage. Adding a dedicated data-fetching library would introduce more abstraction than was necessary for the exercise.
+
+### Cache flow
+
+```text
+Request
+
+  ↓
+
+Check localStorage
+
+  ↓
+
+Valid cache?
+
+ ┌───────────────┐
+ │ Yes           │ No
+ ↓               ↓
+Return cache    Fetch API
+                 ↓
+              Store data
+                 ↓
+              Return data
+```
+
+Cache writes are protected with `try/catch` so that a full `localStorage` quota does not break the application.
+
+## 🌐 Data Flow & API
+
+The application uses the Apple Podcasts API as its primary data source and RSS feeds for additional podcast information.
+
+### API Sources
+
+* **Top 100 podcasts**
+  Apple Podcasts RSS JSON endpoint
+  `https://itunes.apple.com/us/rss/toppodcasts/limit=100/genre=1310/json`
+
+* **Podcast details and episodes**
+  Apple Podcasts Lookup API
+  `https://itunes.apple.com/lookup`
+
+* **Podcast descriptions**
+  RSS feed provided by each podcast through its `feedUrl`
+
+* **RSS CORS fallback**
+  AllOrigins
+  `https://api.allorigins.win/raw`
+
+No API key or custom backend is required.
+
+### Data Processing
+
+Apple API responses are mapped inside `podcastService.ts` into the application's domain models.
+
+Raw API structures remain isolated within the service layer and are not exposed to the UI.
+
+For podcast descriptions, the service uses the podcast `feedUrl` to retrieve the RSS feed, parses it with `DOMParser`, and extracts the available `summary` or `description`.
+
+Some feeds do not allow direct browser requests because of CORS. When this happens, the service falls back to AllOrigins.
+
+The extracted description is stored together with the podcast details in the local cache, avoiding additional RSS requests while the cache is valid.
+
+# ♿ Accessibility
+
+I decided to include accessibility as part of the project because it is an important part of building a good web application, not something that should only be considered at the end. I wanted the application to be usable by people with different needs and interaction methods, while also following the WCAG 2.1 AA requirements defined for the exercise.
+
+The UI was built with WCAG 2.1 AA considerations in mind, using native HTML semantics wherever possible and keeping ARIA usage to a minimum.
+
+* **Semantic HTML:** Uses `header`, `main`, `aside`, `section`, `article`, `table`, native form controls and React Router `Link`.
+* **Landmarks:** Views provide the appropriate page landmarks, with the header acting as the banner and the sidebar as complementary content.
+* **Headings:** The home view includes an accessible `h1` without affecting the visual card layout.
+* **Episode table:** Uses `scope="col"` and `scope="row"` to provide row and column context to screen readers.
+* **Filter input:** Has an accessible name through `aria-label`.
+* **Focus visibility:** Interactive elements maintain visible focus states.
+* **Images:** Decorative artwork uses an empty `alt` when the adjacent text already provides the accessible name.
+* **Loading indicator:** The navigation indicator is part of the header region so its state is available to assistive technology.
+
+---
+
+# 📦 Development
+
+Requires Node.js `^20.19.0` or `>=22.12.0`.
+
+### Install dependencies
 
 ```bash
 npm install
 ```
 
-Start the development server:
+### Start development server
 
 ```bash
 npm run dev
 ```
 
-Run ESLint:
+### Lint
 
 ```bash
 npm run lint
 ```
 
-Type-check without emitting files:
+### Type checking
 
 ```bash
 npx tsc --noEmit
 ```
 
-## Production
+This checks the TypeScript project without generating JavaScript files.
 
-Build for production:
+### Format code
+
+```bash
+npx prettier --write .
+```
+
+### Check formatting
+
+```bash
+npx prettier --check .
+```
+
+---
+
+# 🏭 Production
+
+### Build
 
 ```bash
 npm run build
 ```
 
-This runs `tsc -b` and then bundles with Vite, emitting minified, concatenated assets into `dist/`.
-
-Preview the production build locally:
+### Preview the production build locally
 
 ```bash
 npm run preview
 ```
 
-### Deployment
+---
 
-The application is deployed on Vercel:
+# 🧪 Tests
 
-https://podcast-app-edujuarezcba.vercel.app/
+Run the test suite once:
 
-Vercel handles the SPA routing and deployment configuration.
+```bash
+npm run test
+```
 
-## Data Sources
+Watch mode:
 
-The application uses the public Apple Podcasts API and podcast RSS feeds. No API key or backend proxy is required.
+```bash
+npm run test:watch
+```
 
-Top podcasts: Apple Podcasts RSS Feed
-Podcast and episode data: Apple Podcasts Lookup API
-Podcast descriptions: podcast RSS feed
+Coverage:
 
-API responses are cached in localStorage for 24 hours to reduce unnecessary requests. Clearing the site's local storage forces the application to fetch fresh data.
+```bash
+npm run test:coverage
+```
 
-## Bonus and Extras
+The tests cover the main application flows and service layer, including API requests, response mapping and cache expiration.
 
-### Accessibility
+Custom hooks are also tested in isolation, covering their main loading, success, error and dependency scenarios.
 
-The UI was reviewed against WCAG 2.1 AA guidelines, with attention to semantic HTML, keyboard navigation, focus states, accessible labels, screen reader announcements, and responsive reflow.
+The coverage configuration uses the V8 provider with a minimum threshold of 70%, focused primarily on `services/` and `views/`.
 
-ARIA is kept minimal by relying on native HTML semantics wherever possible and using aria-* attributes only when necessary.
+---
 
-### Testing
+# 🚀 Deployment
 
-The project includes automated tests: unit tests that validate individual pieces of logic in isolation, and integration tests that verify each of the three views works end to end. They are kept small and focused, covering each behaviour required by the technical test without duplicating coverage.
+The application is deployed on Vercel.
 
-## Author
+### Live Preview
+
+[View Live Preview](https://podcast-app-omega-ivory.vercel.app/)
+
+### Production
+
+[View Production Deployment](https://podcast-app-edujuarezcba.vercel.app/)
+
+### SPA Routing
+
+Vercel handles the SPA deployment configuration through `vercel.json`, rewriting application routes to `index.html`.
+
+This allows users to navigate directly to nested routes and refresh the page without receiving a `404`:
+
+```text
+/podcast/123
+/podcast/123/episode/456
+```
+
+The same routing configuration applies to both deployments.
+
+
+## Docker
+
+The application can also be built and served using Docker and Nginx. The Docker setup uses a multi-stage build: Node.js is used to install dependencies and generate the production bundle, while Nginx serves the resulting static files.
+
+### Prerequisites
+
+Make sure Docker Desktop is installed and running.
+
+Verify the installation with:
+
+```bash
+docker --version
+```
+
+Build the docker image:
+
+```bash
+docker build -t podcast-app .
+```
+
+CoverRun docker container:
+
+```bash
+npm run test:coverage
+```
+
+The application will be available locally at:
+
+http://localhost:8080
+
+---
+
+
+# 🔧 Improvements
+
+After the initial implementation, several areas were refined to improve maintainability, testing, styling, caching and development workflow.
+
+### Testing custom hooks
+
+Additional tests were added for the custom hooks to cover their main loading, success, error and dependency scenarios.
+
+The hooks are tested in isolation by mocking the service layer, keeping the tests deterministic and avoiding real API requests.
+
+### Cache structure
+
+The cache was refactored into a shared `localStorage` structure instead of storing data under multiple independent `localStorage` keys.
+
+The shared cache contains timestamps and applies the same 24-hour expiration policy to podcast lists and podcast details.
+
+This makes cache management and invalidation more consistent and keeps the storage structure centralized.
+
+### Styling migration
+
+The application styling was migrated from Tailwind CSS to regular CSS.
+
+Styles are organized into dedicated CSS files alongside their corresponding components and views.
+
+The styling uses standard CSS layout techniques such as Grid, Flexbox, responsive media queries and CSS animations.
+
+### Prettier
+
+Prettier was added to provide consistent code formatting across the project.
+
+The project can be formatted with:
+
+```bash
+npx prettier --write .
+```
+
+Formatting can also be checked without modifying files:
+
+```bash
+npx prettier --check .
+```
+
+### Git workflow
+
+The repository uses a branch-based workflow to separate stable code from ongoing development.
+
+The main branches are:
+
+* `main` — stable production-ready code.
+* `develop` — integration branch for completed development work.
+* Feature, test, refactor and chore branches are created from `develop`.
+
+Changes are integrated through pull requests:
+
+```text
+feature/* / test/* / refactor/* / chore/*
+                    ↓
+                 develop
+                    ↓
+                  main
+```
+
+This keeps changes isolated and makes the development history easier to review.
+
+# 📚 Data Sources
+
+The application uses public Apple Podcasts data and podcast RSS feeds.
+
+* **Top podcasts:** Apple Podcasts RSS feed
+* **Podcast and episode data:** Apple Podcasts Lookup API
+* **Podcast descriptions:** Podcast RSS feeds
+* **RSS CORS fallback:** AllOrigins
+
+No API key or backend service is required.
+
+---
+
+# 👤 Author
 
 **Eduardo Juárez**

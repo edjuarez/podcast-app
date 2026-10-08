@@ -1,0 +1,47 @@
+.podcast-sidebar {
+  height: fit-content;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  background: #ffffff;
+  padding: 1.5rem;
+  box-shadow: 0 1px 5px rgb(0 0 0 / 0.19);
+}
+
+.podcast-sidebar-image {
+  aspect-ratio: 1;
+  width: 100%;
+  border-radius: 0.5rem;
+  object-fit: cover;
+}
+
+.podcast-sidebar-title {
+  margin-top: 1.5rem;
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+  font-weight: 700;
+}
+
+.podcast-sidebar-author {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: #4b5563;
+}
+
+.podcast-sidebar-description {
+  margin-top: 1.5rem;
+  border-top: 1px solid #e5e7eb;
+  padding-top: 1.5rem;
+}
+
+.podcast-sidebar-description-title {
+  margin-bottom: 0.75rem;
+  font-weight: 500;
+  color: #111827;
+}
+
+.podcast-sidebar-description-text {
+  font-size: 0.875rem;
+  line-height: 1.5rem;
+  color: #4b5563;
+}

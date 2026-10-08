@@ -1,120 +1,145 @@
-import { http, HttpResponse } from 'msw'
+import { http, HttpResponse } from "msw";
 import {
   BLOCKED_FEED_URL,
   FEED_URL,
   PODCAST_ID,
   allOriginsFeedUrl,
   lookupResponse,
-} from '../test/fixtures/podcasts'
-import { LOOKUP_ENDPOINT, server } from '../test/msw'
-import { getPodcastDetail, getTopPodcasts } from './podcastService'
+} from "../test/fixtures/podcasts";
+import { LOOKUP_ENDPOINT, server } from "../test/msw";
+import { getPodcastDetail, getTopPodcasts } from "./podcastService";
 
-const TOP_PODCASTS_CACHE_KEY = 'podcast-app:top-podcasts'
-const PODCAST_DETAIL_CACHE_KEY = `podcast-app:podcast-detail:${PODCAST_ID}`
+const CACHE_STORE_KEY = "podcast-app:store";
 
-const CACHE_DURATION = 24 * 60 * 60 * 1000
-const FROZEN_NOW = new Date('2026-01-15T12:00:00Z')
+const CACHE_DURATION = 24 * 60 * 60 * 1000;
+const FROZEN_NOW = new Date("2026-01-15T12:00:00Z");
 
 const CACHED_PODCASTS = [
   {
-    id: 'cached-1',
-    title: 'Cached Podcast',
-    author: 'Cached Author',
-    artworkUrl: '',
-    description: '',
+    id: "cached-1",
+    title: "Cached Podcast",
+    author: "Cached Author",
+    artworkUrl: "",
+    description: "",
   },
-]
+];
 
 const CACHED_DETAIL = {
   podcast: CACHED_PODCASTS[0],
   episodes: [],
-}
+};
 
 function freezeClock() {
-  vi.useFakeTimers({ toFake: ['Date'] })
-  vi.setSystemTime(FROZEN_NOW)
+  vi.useFakeTimers({ toFake: ["Date"] });
+  vi.setSystemTime(FROZEN_NOW);
 }
 
-function seedCache(key: string, data: unknown, ageMs: number) {
-  localStorage.setItem(
-    key,
-    JSON.stringify({ timestamp: Date.now() - ageMs, data }),
-  )
+function seedCache(
+  section: "topPodcasts" | "podcastDetails",
+  data: unknown,
+  ageMs: number,
+) {
+  const cache =
+    section === "topPodcasts"
+      ? {
+          topPodcasts: {
+            timestamp: Date.now() - ageMs,
+            data,
+          },
+          podcastDetails: {},
+        }
+      : {
+          topPodcasts: undefined,
+          podcastDetails: {
+            [PODCAST_ID]: {
+              timestamp: Date.now() - ageMs,
+              data,
+            },
+          },
+        };
+
+  localStorage.setItem(CACHE_STORE_KEY, JSON.stringify(cache));
 }
 
-function readCache(key: string) {
-  return JSON.parse(localStorage.getItem(key) as string)
+function readCache() {
+  return JSON.parse(localStorage.getItem(CACHE_STORE_KEY) as string);
 }
 
-describe('getTopPodcasts', () => {
-  it('reuses the cached podcasts while the cache is still valid', async () => {
-    freezeClock()
-    seedCache(TOP_PODCASTS_CACHE_KEY, CACHED_PODCASTS, CACHE_DURATION - 1)
+describe("getTopPodcasts", () => {
+  it("reuses the cached podcasts while the cache is still valid", async () => {
+    freezeClock();
+    seedCache("topPodcasts", CACHED_PODCASTS, CACHE_DURATION - 1);
 
-    await expect(getTopPodcasts()).resolves.toEqual(CACHED_PODCASTS)
-  })
+    await expect(getTopPodcasts()).resolves.toEqual(CACHED_PODCASTS);
+  });
 
-  it('requests the podcasts again and refreshes the cache once it expires', async () => {
-    freezeClock()
-    seedCache(TOP_PODCASTS_CACHE_KEY, CACHED_PODCASTS, CACHE_DURATION)
+  it("requests the podcasts again and refreshes the cache once it expires", async () => {
+    freezeClock();
+    seedCache("topPodcasts", CACHED_PODCASTS, CACHE_DURATION);
 
-    const podcasts = await getTopPodcasts()
+    const podcasts = await getTopPodcasts();
 
-    expect(podcasts).toHaveLength(100)
+    expect(podcasts).toHaveLength(100);
 
-    const cache = readCache(TOP_PODCASTS_CACHE_KEY)
+    const cache = readCache();
 
-    expect(cache.timestamp).toBe(FROZEN_NOW.getTime())
-    expect(cache.data).toHaveLength(100)
-  })
-})
+    expect(cache.topPodcasts.timestamp).toBe(FROZEN_NOW.getTime());
+    expect(cache.topPodcasts.data).toHaveLength(100);
+  });
+});
 
-describe('getPodcastDetail', () => {
-  it('reuses the cached podcast detail while the cache is still valid', async () => {
-    freezeClock()
-    seedCache(PODCAST_DETAIL_CACHE_KEY, CACHED_DETAIL, CACHE_DURATION - 1)
+describe("getPodcastDetail", () => {
+  it("reuses the cached podcast detail while the cache is still valid", async () => {
+    freezeClock();
+    seedCache("podcastDetails", CACHED_DETAIL, CACHE_DURATION - 1);
 
-    await expect(getPodcastDetail(PODCAST_ID)).resolves.toEqual(CACHED_DETAIL)
-  })
+    await expect(getPodcastDetail(PODCAST_ID)).resolves.toEqual(CACHED_DETAIL);
+  });
 
-  it('requests the podcast detail again and refreshes the cache once it expires', async () => {
-    freezeClock()
-    seedCache(PODCAST_DETAIL_CACHE_KEY, CACHED_DETAIL, CACHE_DURATION)
+  it("requests the podcast detail again and refreshes the cache once it expires", async () => {
+    freezeClock();
+    seedCache("podcastDetails", CACHED_DETAIL, CACHE_DURATION);
 
-    const detail = await getPodcastDetail(PODCAST_ID)
+    const detail = await getPodcastDetail(PODCAST_ID);
 
-    expect(detail.podcast.title).toBe('Test Podcast')
+    expect(detail.podcast.title).toBe("Test Podcast");
 
-    const cache = readCache(PODCAST_DETAIL_CACHE_KEY)
+    const cache = readCache();
 
-    expect(cache.timestamp).toBe(FROZEN_NOW.getTime())
-    expect(cache.data.podcast.title).toBe('Test Podcast')
-  })
+    expect(cache.podcastDetails[PODCAST_ID].timestamp).toBe(
+      FROZEN_NOW.getTime(),
+    );
+    expect(cache.podcastDetails[PODCAST_ID].data.podcast.title).toBe(
+      "Test Podcast",
+    );
+  });
 
-  it('loads the podcast description from the feed without a proxy when the direct request works', async () => {
-    const fetchSpy = vi.spyOn(globalThis, 'fetch')
+  it("loads the podcast description from the feed without a proxy when the direct request works", async () => {
+    const fetchSpy = vi.spyOn(globalThis, "fetch");
 
-    const detail = await getPodcastDetail(PODCAST_ID)
+    const detail = await getPodcastDetail(PODCAST_ID);
 
-    expect(detail.podcast.description).toBe('Default feed description')
-    expect(fetchSpy).toHaveBeenCalledWith(FEED_URL)
-    expect(fetchSpy).not.toHaveBeenCalledWith(allOriginsFeedUrl())
-  })
+    expect(detail.podcast.description).toBe("Default feed description");
+    expect(fetchSpy).toHaveBeenCalledWith(FEED_URL);
+    expect(fetchSpy).not.toHaveBeenCalledWith(allOriginsFeedUrl());
+  });
 
-  it('falls back to the AllOrigins proxy when the direct feed request fails', async () => {
+  it("falls back to the AllOrigins proxy when the direct feed request fails", async () => {
     server.use(
       http.get(LOOKUP_ENDPOINT, () =>
-        HttpResponse.json(lookupResponse({ podcast: { feedUrl: BLOCKED_FEED_URL } })),
+        HttpResponse.json(
+          lookupResponse({ podcast: { feedUrl: BLOCKED_FEED_URL } }),
+        ),
       ),
       http.get(BLOCKED_FEED_URL, () => HttpResponse.error()),
-    )
+    );
 
-    const fetchSpy = vi.spyOn(globalThis, 'fetch')
+    const fetchSpy = vi.spyOn(globalThis, "fetch");
 
-    const detail = await getPodcastDetail(PODCAST_ID)
+    const detail = await getPodcastDetail(PODCAST_ID);
 
-    expect(detail.podcast.description).toBe('Default feed description')
-    expect(fetchSpy).toHaveBeenCalledWith(BLOCKED_FEED_URL)
-    expect(fetchSpy).toHaveBeenCalledWith(allOriginsFeedUrl(BLOCKED_FEED_URL))
-  })
-})
+    expect(detail.podcast.description).toBe("Default feed description");
+    expect(fetchSpy).toHaveBeenCalledWith(BLOCKED_FEED_URL);
+    expect(fetchSpy).toHaveBeenCalledWith(allOriginsFeedUrl(BLOCKED_FEED_URL));
+  });
+});
