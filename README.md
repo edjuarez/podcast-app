@@ -16,7 +16,6 @@ The main goal was not only to implement the required features, but also to keep 
 4. 🏗️ [Architecture](#️-architecture)
 5. 🪝 [Custom Hooks](#-custom-hooks)
 6. 🎨 [Design Decisions](#-design-decisions)
-
    * 🧭 [Client-side Routing](#-client-side-routing)
    * 🔎 [Filtering](#-filtering)
    * 📝 [Podcast Description](#-podcast-description)
@@ -585,7 +584,7 @@ The application is deployed on Vercel.
 
 ### Live Preview
 
-[View Live Preview](https://podcast-app-omega-ivory.vercel.app/)
+[View Live Preview](https://podcast-uqwkioqjj-edujuarezcba.vercel.app/)
 
 ### Production
 
