@@ -2,9 +2,9 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import App from "./App";
-import { HomeView } from "./views/HomeView";
-import { PodcastDetailView } from "./views/PodcastDetailView";
-import { EpisodeDetailView } from "./views/EpisodeDetailView";
+import { HomeView } from "./views/HomeView/HomeView";
+import { PodcastDetailView } from "./views/PodcastDetailView/PodcastDetailView";
+import { EpisodeDetailView } from "./views/EpisodeDetailView/EpisodeDetailView";
 import "./index.css";
 
 const router = createBrowserRouter([

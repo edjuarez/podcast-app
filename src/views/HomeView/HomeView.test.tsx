@@ -1,9 +1,9 @@
 import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { delay, http, HttpResponse } from "msw";
-import { TOP_PODCASTS_ENDPOINT, server } from "../test/msw";
-import { topPodcastsResponse } from "../test/fixtures/podcasts";
-import { renderApp } from "../test/renderApp";
+import { TOP_PODCASTS_ENDPOINT, server } from "../../test/msw";
+import { topPodcastsResponse } from "../../test/fixtures/podcasts";
+import { renderApp } from "../../test/renderApp";
 
 function getHeaderIndicators() {
   const headerRow = screen.getByRole("banner").firstElementChild as HTMLElement;

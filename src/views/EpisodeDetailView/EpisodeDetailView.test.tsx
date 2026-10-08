@@ -1,7 +1,7 @@
 import { screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { PODCAST_ID } from "../test/fixtures/podcasts";
-import { renderApp } from "../test/renderApp";
+import { PODCAST_ID } from "../../test/fixtures/podcasts";
+import { renderApp } from "../../test/renderApp";
 
 async function renderLoadedEpisodeDetail() {
   const result = renderApp(`/podcast/${PODCAST_ID}/episode/987654322`);
