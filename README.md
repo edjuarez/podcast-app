@@ -581,23 +581,29 @@ The coverage configuration uses the V8 provider with a minimum threshold of 70%,
 
 # 🚀 Deployment
 
-The application is deployed on Vercel:
+The application is deployed on Vercel.
 
-https://podcast-app-edujuarezcba.vercel.app/
+### Live Preview
+
+[View Live Preview](https://podcast-app-omega-ivory.vercel.app/)
+
+### Production
+
+[View Production Deployment](https://podcast-app-edujuarezcba.vercel.app/)
+
+### SPA Routing
 
 Vercel handles the SPA deployment configuration through `vercel.json`, rewriting application routes to `index.html`.
 
-This allows direct navigation and page refreshes on routes such as:
+This allows users to navigate directly to nested routes and refresh the page without receiving a `404`:
 
 ```text
 /podcast/123
-
 /podcast/123/episode/456
 ```
 
-without returning a 404.
+The same routing configuration applies to both deployments.
 
----
 
 ## Docker
 
